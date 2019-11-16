@@ -59,7 +59,7 @@ class CreateInitialTables extends Migration
             //----------------------
             $table->float('score',2,1);
             //user relationship
-            $table->integer('user',false,true);
+            $table->integer('user',false,true)->nullable();
             $table->foreign('user')->references('id')->on('users');
             //-----------------
             $table->timestamps();
