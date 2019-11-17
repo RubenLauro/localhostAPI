@@ -6,22 +6,21 @@ use Illuminate\Http\Request;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client;
 
-
-class YelpAPIController extends Controller
+class TripAdvisorAPIController extends Controller
 {
-
     private $apikey;
     private $apiid /*= env("YELP_API_ID")*/;
+
     /**
      * Test api
      */
     public function test(Request $request){
 //        if($request->filled('location')){
-            $apikey = env("YELP_API_KEY");
-            $client = new Client();
-            $result = $client->get('https://api.yelp.com/v3/businesses/search?location=leiria', [
-                'headers' => ['Authorization' => 'Bearer ' . $apikey]
-            ]);
+        $apikey = env("TRIPADVISOR_API_KEY");
+        $client = new Client();
+        $result = $client->get('https://api.yelp.com/v3/businesses/search?location=leiria', [
+            'headers' => ['Authorization' => 'Bearer ' . $apikey]
+        ]);
 //        }
         return $result;
     }

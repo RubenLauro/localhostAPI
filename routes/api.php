@@ -23,3 +23,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('me', 'UserControllerAPI@me');
 });
 
+Route::get('testYelp','YelpAPIController@test');
+Route::get('testTripadvisor','TripAdvisorAPIController@test');
+Route::get('testBooking','YelpAPIController@test');
+
