@@ -19,7 +19,8 @@ class UserResource extends Resource
             'last_name' => $this->last_name,
             'email' => $this->email,
             'local' => $this->local,
-            'avatar'=> $this->avatar
+            'avatar'=> $this->avatar,
+            'token' => $this->token
         ];
     }
 }
