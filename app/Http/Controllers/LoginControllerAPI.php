@@ -40,7 +40,7 @@ class LoginControllerAPI extends Controller
         if ($errorCode=='200') {
             $user = User::where('email', '=', $request->email)->firstOrFail();
             $user = collect($user);
-            $user ->put('tokens',json_decode( $response->getBody(), true));
+            $user ->put('token',json_decode( $response->getBody(), true)['access_token']);
             return Response::json(array($user));
             //return json_decode((string) $response->getBody(), true);
         } else {
