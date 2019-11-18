@@ -3,11 +3,22 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
+    use App\User;
+    use Response;
+   
+//local
+/*
 define('YOUR_SERVER_URL', 'http://localhost.me');
 // Check "oauth_clients" table for next 2 values:
 define('CLIENT_ID', '2');
 define('CLIENT_SECRET', 'dEkJVQsTdJHqB4lZGSmOwb5zhNfXiK47s5b07kFi');
+*/
+
+//server
+define('YOUR_SERVER_URL', 'http://178.62.5.112');
+// Check "oauth_clients" table for next 2 values:
+define('CLIENT_ID', '4');
+define('CLIENT_SECRET', 'SdnIlMsu2ilSbShgSglT1JJBXMvf4LGDkCYo1CCf');
 
 class LoginControllerAPI extends Controller
 {
@@ -27,7 +38,11 @@ class LoginControllerAPI extends Controller
             ]);
         $errorCode= $response->getStatusCode();
         if ($errorCode=='200') {
-            return json_decode((string) $response->getBody(), true);
+            $user = User::where('email', '=', $request->email)->firstOrFail();
+            $user = collect($user);
+            $user ->put('tokens',json_decode( $response->getBody(), true));
+            return Response::json(array($user));
+            //return json_decode((string) $response->getBody(), true);
         } else {
             return response()->json(['msg'=>'User credentials are invalid'], $errorCode);
         }
