@@ -6,22 +6,22 @@ use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use App\User;
 use Illuminate\Support\Facades\Auth;
-/*
+
 //local
 
 define('YOUR_SERVER_URL', 'http://localhost.me');
 // Check "oauth_clients" table for next 2 values:
 define('CLIENT_ID', '2');
 define('CLIENT_SECRET', 'dEkJVQsTdJHqB4lZGSmOwb5zhNfXiK47s5b07kFi');
-*/
 
 
-//server
+/*
+//server //todo change to env
 define('YOUR_SERVER_URL', 'http://178.62.5.112');
 // Check "oauth_clients" table for next 2 values:
 define('CLIENT_ID', '4');
 define('CLIENT_SECRET', 'SdnIlMsu2ilSbShgSglT1JJBXMvf4LGDkCYo1CCf');
-
+*/
 
 class LoginControllerAPI extends Controller
 {

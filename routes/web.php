@@ -15,3 +15,12 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/success', function () {
+    return view('auth.passwords.success');
+});
+
+
+Route::get('reset/password/{token}', 'UserControllerAPI@getResetPage');
+Route::put('reset/password', 'UserControllerAPI@updatePassword')->name('password.request');
+//Auth::routes();
+
