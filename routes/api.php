@@ -19,14 +19,14 @@ Route::post('register', 'UserControllerAPI@store');
 
 Route::post('reset/password', 'UserControllerAPI@resetPasswordSendLink');
 
-Route::post('avatar/{user}', 'UserControllerAPI@uploadAvatar'); //como é file tem de ser post
-
 Route::middleware('auth:api')->group(function () {
     Route::post('logout', 'LoginControllerAPI@logout');
 
     Route::get('me', 'UserControllerAPI@me');
 
     Route::put('me/update', 'UserControllerAPI@update');
+
+    Route::post('avatar', 'UserControllerAPI@uploadAvatar'); //como é file tem de ser post
 });
 
 Route::get('testYelp','YelpAPIController@test');

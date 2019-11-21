@@ -30,7 +30,7 @@ class UserControllerAPI extends Controller
         $user->avatar = ""; //todo change
 
         if ($user->save()){
-            return response()->json(["message" => "User created successfully!", "user_id" => $user->id], 200);
+            return response()->json(["message" => "User created successfully!"], 200);
         }
 
         return response()->json(["message" => "User not created!"], 500);
@@ -40,7 +40,8 @@ class UserControllerAPI extends Controller
         return new UserResource(Auth::user());
     }
 
-    public function uploadAvatar(UploadAvatarRequest $request, User $user){
+    public function uploadAvatar(UploadAvatarRequest $request){
+        $user = Auth::user();
         $file = $request->file('avatar');
         $new_avatar_url = str_random(16) . '.' . $file->getClientOriginalExtension();
         $file->storeAs('profiles', $new_avatar_url, 'public');
