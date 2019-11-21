@@ -60,11 +60,11 @@ class UserControllerAPI extends Controller
     public function update(Request $request){
         $user = Auth::user();
         if ($request->has('first_name')){
-            $user->zone = $request->first_name;
+            $user->first_name = $request->first_name;
         }
 
         if ($request->has('last_name')) {
-            $user->section = $request->last_name;
+            $user->last_name = $request->last_name;
         }
 
         if ($request->has('local')) {
