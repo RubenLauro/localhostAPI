@@ -7,32 +7,16 @@ use Illuminate\Http\Request;
 use App\User;
 use Illuminate\Support\Facades\Auth;
 
-//local
-
-define('YOUR_SERVER_URL', 'http://localhost.me');
-// Check "oauth_clients" table for next 2 values:
-define('CLIENT_ID', '2');
-define('CLIENT_SECRET', 'dEkJVQsTdJHqB4lZGSmOwb5zhNfXiK47s5b07kFi');
-
-
-/*
-//server //todo change to env
-define('YOUR_SERVER_URL', 'http://178.62.5.112');
-// Check "oauth_clients" table for next 2 values:
-define('CLIENT_ID', '4');
-define('CLIENT_SECRET', 'SdnIlMsu2ilSbShgSglT1JJBXMvf4LGDkCYo1CCf');
-*/
-
 class LoginControllerAPI extends Controller
 {
     public function login(Request $request)
     {
         $http = new \GuzzleHttp\Client;
-            $response = $http->post(YOUR_SERVER_URL.'/oauth/token', [
+            $response = $http->post(env('YOUR_SERVER_URL', '').'/oauth/token', [
                 'form_params' => [
                     'grant_type' => 'password',
-                    'client_id' => CLIENT_ID,
-                    'client_secret' => CLIENT_SECRET,
+                    'client_id' => env('CLIENT_ID', ''),
+                    'client_secret' => env('CLIENT_SECRET', ''),
                     'username' => $request->email,
                     'password' => $request->password,
                     'scope' => ''
