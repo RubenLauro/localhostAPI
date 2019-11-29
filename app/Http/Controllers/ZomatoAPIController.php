@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client;
 
-class TripAdvisorAPIController extends Controller
+class ZomatoAPIController extends Controller
 {
     private $apikey;
     private $apiid /*= env("YELP_API_ID")*/;
@@ -16,10 +16,10 @@ class TripAdvisorAPIController extends Controller
      */
     public function test(Request $request){
 //        if($request->filled('location')){
-        $apikey = env("TRIPADVISOR_API_KEY");
+        $apikey = env("ZOMATO_API_KEY");
         $client = new Client();
-        $result = $client->get('https://api.yelp.com/v3/businesses/search?location=leiria', [
-            'headers' => ['Authorization' => 'Bearer ' . $apikey]
+        $result = $client->get('https://developers.zomato.com/api/v2.1/cities?q=lisbon', [
+            'headers' => ['user-key' => $apikey]
         ]);
 //        }
         return $result;

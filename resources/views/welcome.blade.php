@@ -75,7 +75,7 @@
 
                 <div class="links">
                     <a href="api/testYelp"> Test Yelp </a>
-                    <a href="api/testTripadvisor"> Test Trip Advisor </a>
+                    <a href="api/testZomato"> Test Zomato </a>
                     <a href="api/testBooking"> Test Booking.com </a>
 {{--                    <a href="https://laravel.com/docs">Documentation</a>--}}
 {{--                    <a href="https://laracasts.com">Laracasts</a>--}}

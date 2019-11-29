@@ -30,6 +30,5 @@ Route::middleware('auth:api')->group(function () {
 });
 
 Route::get('testYelp','YelpAPIController@test');
-Route::get('testTripadvisor','TripAdvisorAPIController@test');
-Route::get('testBooking','YelpAPIController@test');
+Route::get('testZomato','ZomatoAPIController@test');
 
