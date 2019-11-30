@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Place extends Model
+class City extends Model
 {
     /**
      * The attributes that are mass assignable.
@@ -12,14 +12,10 @@ class Place extends Model
      * @var array
      */
     protected $fillable = [
+        'id',
         'name',
-        'average_rating',
-        'reviews',
-        'latitude',
-        'longitude',
-        'types',
+        'description',
         'region',
-        'is_closed'
     ];
 
     /**
@@ -27,10 +23,5 @@ class Place extends Model
      *
      * @var array
      */
-    protected $hidden = [
-
-    ];
-
-    function types(){
-    }
+    protected $hidden = [];
 }

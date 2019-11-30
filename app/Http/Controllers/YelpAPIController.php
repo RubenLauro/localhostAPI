@@ -11,19 +11,49 @@ class YelpAPIController extends Controller
 {
 
     private $apikey;
-    private $apiid /*= env("YELP_API_ID")*/;
+    private $apiid;
+
+
+    /**
+     * Gets reviews from id of business
+     *
+     * @param int|string $id
+     *
+     * @return array
+     */
+    public static function get_reviews($id)
+    {
+        $apikey = env("YELP_API_KEY");
+        $client = new Client();
+        $result = $client->get('https://api.yelp.com/v3/businesses/'. $id . '/reviews',[
+            'headers' => ['Authorization' => 'Bearer ' . $apikey]
+        ]);
+        return json_decode($result->getBody())->reviews;
+    }
+
     /**
      * Test api
      */
-    public function test(Request $request){
+    public function test(Request $request)
+    {
 //        if($request->filled('location')){
-            $apikey = env("YELP_API_KEY");
-            $client = new Client();
-            $result = $client->get('https://api.yelp.com/v3/businesses/search?location=leiria', [
-                'headers' => ['Authorization' => 'Bearer ' . $apikey]
-            ]);
+        $apikey = env("YELP_API_KEY");
+        $client = new Client();
+        $result = $client->get('https://api.yelp.com/v3/businesses/search?location=leiria', [
+            'headers' => ['Authorization' => 'Bearer ' . $apikey]
+        ]);
 //        }
         return $result;
+    }
+
+    public static function searchByName($query)
+    {
+        $apikey = env("YELP_API_KEY");
+        $client = new Client();
+        $result = $client->get('https://api.yelp.com/v3/businesses/search?location=leiria&limit=10&term=' . $query, [
+            'headers' => ['Authorization' => 'Bearer ' . $apikey]
+        ]);
+        return $result->getBody();
     }
 
     /**
@@ -49,7 +79,7 @@ class YelpAPIController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -60,7 +90,7 @@ class YelpAPIController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -71,7 +101,7 @@ class YelpAPIController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -82,8 +112,8 @@ class YelpAPIController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -94,7 +124,7 @@ class YelpAPIController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

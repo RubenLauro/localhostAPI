@@ -2,38 +2,34 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client;
+use Illuminate\Http\Request;
 
-class ZomatoAPIController extends Controller
+class FourSquareAPIController extends Controller
 {
     private $apikey;
-    private $apiid /*= env("YELP_API_ID")*/;
+    private $apicsecret;
 
     public static function searchByName($name)
     {
-        $apikey = env("ZOMATO_API_KEY");
+        $apicid = env('FOURSQUARE_API_CLIENT_ID');
+        $apicsecret = env('FOURSQUARE_API_CLIENT_SECRET');
         $client = new Client();
-        $result = $client->get('https://developers.zomato.com/api/v2.1/search?q=' . $name, [
-            'headers' => ['user-key' => $apikey]
-        ]);
-        $body = json_decode($result->getBody());
-        return $body->restaurants;
+        $result = $client->get('https://api.foursquare.com/v2/venues/search?client_id=' .
+            $apicid . '&client_secret=' . $apicsecret . '&v=20191129&limit=10&near=leiria&query=' . $name);
+        return $result;
     }
 
-    /**
-     * Test api
-     */
-    public function test(Request $request){
-        $apikey = env("ZOMATO_API_KEY");
+    public function test()
+    {
+        $apicid = env('FOURSQUARE_API_CLIENT_ID');
+        $apicsecret = env('FOURSQUARE_API_CLIENT_SECRET');
         $client = new Client();
-        $result = $client->get('https://developers.zomato.com/api/v2.1/search?q=lisbon&count=10', [
-            'headers' => ['user-key' => $apikey]
-        ]);
-        $body = json_decode($result->getBody());
-        return $body->restaurants;
+        $result = $client->get('https://api.foursquare.com/v2/venues/search?client_id=' .
+           $apicid . '&client_secret=' . $apicsecret . '&v=20191129&limit=20&near=leiria&query=casarao');
+        return $result;
     }
+
 
     /**
      * Display a listing of the resource.
@@ -58,7 +54,7 @@ class ZomatoAPIController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -69,7 +65,7 @@ class ZomatoAPIController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -80,7 +76,7 @@ class ZomatoAPIController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -91,8 +87,8 @@ class ZomatoAPIController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -103,7 +99,7 @@ class ZomatoAPIController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

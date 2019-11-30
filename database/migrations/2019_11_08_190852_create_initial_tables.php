@@ -42,6 +42,19 @@ class CreateInitialTables extends Migration
             $table->softDeletes();
         });
 
+        Schema::create('cities', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->string('description');
+
+            //Region relationship
+            $table->integer('region', false, true)->nullable();
+            $table->foreign('region')->references('id')->on('regions');
+            //-------------------
+            $table->timestamps();
+            $table->softDeletes();
+        });
+
         Schema::create('providers', function (Blueprint $table){
             $table->increments('id');
             $table->string('name');
@@ -77,13 +90,13 @@ class CreateInitialTables extends Migration
             $table->float('latitude',8,6);
             $table->float('longitude',8,6);
             //types relationship
-            $table->integer('type',false,true);
-            $table->foreign('type')->references('id')->on('place_types');
+            $table->integer('types',false,true);
+            $table->foreign('types')->references('id')->on('place_types');
             //------------------
             $table->integer('qt_reviews',false,true);
-            //regions relationship
-            $table->integer('region',false,true);
-            $table->foreign('region')->references('id')->on('regions');
+            //cities relationship
+            $table->integer('city',false,true);
+            $table->foreign('city')->references('id')->on('cities');
             //--------------------
             $table->timestamps();
             $table->softDeletes();
@@ -100,6 +113,7 @@ class CreateInitialTables extends Migration
         Schema::dropIfExists('categories');
         Schema::dropIfExists('place_types');
         Schema::dropIfExists('regions');
+        Schema::dropIfExists('cities');
         Schema::dropIfExists('providers');
         Schema::dropIfExists('reviews');
         Schema::dropIfExists('places');
