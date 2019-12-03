@@ -126,8 +126,8 @@ class LocalhostAPIController extends Controller
         //There are 10 places
         // now we have to merge information from the 10 places
         // gotten from other APIS
-        //dd($places);
-        return PlaceResource::collection($places);
+       // dd($places);
+        return $places;
     }
 
     /**
