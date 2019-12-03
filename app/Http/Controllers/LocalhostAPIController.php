@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Category;
 use App\City;
+use App\Http\Resources\PlaceResource;
 use App\Place;
 use App\Region;
 use http\Client;
 use http\Exception\InvalidArgumentException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 class LocalhostAPIController extends Controller
 {
@@ -19,7 +22,7 @@ class LocalhostAPIController extends Controller
     function searchByName(Request $request)
     {
         $name = $request->input('name');
-        $places = array();
+        $places = new Collection();
         /**
          * Yelp
          *
@@ -104,7 +107,7 @@ class LocalhostAPIController extends Controller
             $place->average_rating = $current_result->rating;
             $place->latitude = $current_result->coordinates->latitude;
             $place->longitude = $current_result->coordinates->longitude;
-            $place->city = strtolower($current_result->location->city);
+            $place->city = mb_strtolower($current_result->location->city);
             //$place->city = $this->find_city($current_result->location->city);
             $place->types = $this->parse_categories_array($current_result->categories, "yelp");
             //$this->find_categories(
@@ -113,12 +116,17 @@ class LocalhostAPIController extends Controller
 
             $place->reviews = $this->get_reviews($current_result->id, "yelp");
             $place->qt_reviews = $current_result->review_count;
-            array_push($places, $place);
+            //dd($place);
+            //dd($place);
+            $places = $places->push($place);
+            Log::warning($place);
+            //array_push($places, $place);
         }
         //There are 10 places
         // now we have to merge information from the 10 places
         // gotten from other APIS
-        return $places;
+        //dd($places);
+        return PlaceResource::collection($places);
     }
 
     /**
