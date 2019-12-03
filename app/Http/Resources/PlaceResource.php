@@ -21,6 +21,7 @@ class PlaceResource extends Resource
             'longitude' => $this->longitude,
             'city' => $this->city,
             'types' => $this->types,
+            'address' => $this->address,
             'review' => $this->reviews,
             'qt_reviews' => $this->qt_reviews
         ];

@@ -104,6 +104,7 @@ class LocalhostAPIController extends Controller
             $current_result = $yelpResult;
             $place = new Place();
             $place->name = $current_result->name;
+            $place->address = $current_result->location->display_address[0];
             $place->average_rating = $current_result->rating;
             $place->latitude = $current_result->coordinates->latitude;
             $place->longitude = $current_result->coordinates->longitude;
