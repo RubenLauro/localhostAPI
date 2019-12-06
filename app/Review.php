@@ -12,7 +12,7 @@ class Review extends Model
      * @var array
      */
     protected $fillable = [
-        'provider', 'score', 'user'
+        'provider', 'score', 'user', 'text', 'place_id'
     ];
 
     /**
@@ -21,4 +21,8 @@ class Review extends Model
      * @var array
      */
     protected $hidden = [];
+
+    public function place(){
+        $this->hasOne('App\Place','id','place_id');
+    }
 }

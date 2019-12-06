@@ -13,7 +13,7 @@ class CreateInitialTables extends Migration
      */
     public function up()
     {
-        Schema::create('categories', function (Blueprint $table){
+        Schema::create('types', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
             $table->string('description')->nullable();
@@ -21,85 +21,42 @@ class CreateInitialTables extends Migration
             $table->softDeletes();
         });
 
-        Schema::create('place_types', function (Blueprint $table){
+        Schema::create('places', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
-            //categories relationship
-            $table->integer('category',false,true);
-            $table->foreign('category')->references('id')->on('categories');
-            //-----------------------
-            $table->string('description')->nullable();
-            $table->timestamps();
-            $table->softDeletes();
-        });
-
-        Schema::create('regions', function (Blueprint $table){
-            $table->increments('id');
-            $table->string('name');
-            $table->float('latitude', 8,6);
-            $table->float('longitude', 8,6);
-            $table->timestamps();
-            $table->softDeletes();
-        });
-
-        Schema::create('cities', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('name');
-            $table->string('description');
-
-            //Region relationship
-            $table->integer('region', false, true)->nullable();
-            $table->foreign('region')->references('id')->on('regions');
-            //-------------------
-            $table->timestamps();
-            $table->softDeletes();
-        });
-
-        Schema::create('providers', function (Blueprint $table){
-            $table->increments('id');
-            $table->string('name');
-            $table->string('url');
-            $table->string('logo_url');
-            $table->timestamps();
-            $table->softDeletes();
-        });
-
-        Schema::create('reviews', function (Blueprint $table){
-            $table->increments('id');
-            //providers relationship
-            $table->integer('provider',false,true);
-            $table->foreign('provider')->references('id')->on('providers');
-            //----------------------
-            $table->float('score',2,1);
-            //user relationship
-            $table->integer('user',false,true)->nullable();
-            $table->foreign('user')->references('id')->on('users');
-            //-----------------
-            $table->timestamps();
-            $table->softDeletes();
-        });
-
-        Schema::create('places', function (Blueprint $table){
-            $table->increments('id');
-            $table->string('name');
-            $table->float('average_rating',2,1);
-            //reviews relationship
-            $table->integer('reviews',false,true);
-            $table->foreign('reviews')->references('id')->on('reviews');
-            //--------------------
-            $table->float('latitude',8,6);
-            $table->float('longitude',8,6);
-            //types relationship
-            $table->integer('types',false,true);
-            $table->foreign('types')->references('id')->on('place_types');
+            $table->string('image_url')->nullable();
+            $table->string('address')->nullable();
+            $table->string('city')->nullable();
+            $table->float('average_rating', 2, 1);
+            $table->float('latitude', 8, 6);
+            $table->float('longitude', 8, 6);
+            $table->integer('qt_reviews', false, true);
+            $table->string('provider');
             //------------------
-            $table->integer('qt_reviews',false,true);
-            //cities relationship
-            $table->integer('city',false,true);
-            $table->foreign('city')->references('id')->on('cities');
-            //--------------------
             $table->timestamps();
             $table->softDeletes();
+        });
+
+        Schema::create('reviews', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('text')->nullable();
+            $table->float('rating', 2, 1);
+            $table->string('user_name');
+            $table->string('user_image')->nullable();
+            //Place relationship
+            $table->unsignedInteger('place_id');
+            $table->foreign('place_id')->references('id')->on('places');
+
+            $table->timestamps();
+            $table->softDeletes();
+        });
+
+        Schema::create('place_types', function (Blueprint $table) {
+            $table->unsignedInteger('type_id');
+            $table->foreign('type_id')->references('id')->on('types');
+            $table->unsignedInteger('place_id');
+            $table->foreign('place_id')->references('id')->on('places');
+            $table->timestamps();
         });
     }
 
@@ -110,11 +67,7 @@ class CreateInitialTables extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('categories');
-        Schema::dropIfExists('place_types');
-        Schema::dropIfExists('regions');
-        Schema::dropIfExists('cities');
-        Schema::dropIfExists('providers');
+        Schema::dropIfExists('types');
         Schema::dropIfExists('reviews');
         Schema::dropIfExists('places');
     }

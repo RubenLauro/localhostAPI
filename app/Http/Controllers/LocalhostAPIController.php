@@ -6,7 +6,9 @@ use App\Category;
 use App\City;
 use App\Http\Resources\PlaceResource;
 use App\Place;
+use App\PlaceType;
 use App\Region;
+use App\Type;
 use http\Client;
 use http\Exception\InvalidArgumentException;
 use Illuminate\Http\Request;
@@ -82,7 +84,7 @@ class LocalhostAPIController extends Controller
          *
          * })
          */
-        $zomatoResults = ZomatoAPIController::searchByName($name);
+        //$zomatoResults = ZomatoAPIController::searchByName($name);
 
         /**
          * Foursquare
@@ -97,59 +99,176 @@ class LocalhostAPIController extends Controller
          *      categories: Array({id,name,pluralName,shortName,icon:Array(prefix),primary})
          * })
          */
-        $foursquareResults = FourSquareAPIController::searchByName($name);
+        //$foursquareResults = FourSquareAPIController::searchByName($name);
 
         //Go through YELP results first
         foreach ($yelpResults->businesses as $yelpResult) {
-            $current_result = $yelpResult;
-            $place = new Place();
-            $place->name = $current_result->name;
-            $place->image_url = $current_result->image_url;
-            $place->address = $current_result->location->address1;
-            $place->average_rating = $current_result->rating;
-            $place->latitude = $current_result->coordinates->latitude;
-            $place->longitude = $current_result->coordinates->longitude;
-            $place->city = mb_strtolower($current_result->location->city);
-            //$place->city = $this->find_city($current_result->location->city);
-            $place->types = $this->parse_categories_array($current_result->categories, "yelp");
-            //$this->find_categories(
-            //                $current_result->categories,
-            //                "yelp");
-
-            $place->reviews = $this->get_reviews($current_result->id, "yelp");
-            $place->qt_reviews = $current_result->review_count;
-            //dd($place);
-            //dd($place);
+            $place = $this->createOrUpdatePlace($yelpResult,
+                $yelpResult->coordinates->latitude,
+                $yelpResult->coordinates->longitude,
+                null, null, $name, "yelp");
             $places = $places->push($place);
-            Log::warning($place);
-            //array_push($places, $place);
         }
         //There are 10 places
         // now we have to merge information from the 10 places
         // gotten from other APIS
-       // dd($places);
+        // dd($places);
         return $places;
     }
+
+    /**
+     * Search by radius
+     */
+    function searchByRadius(Request $request)
+    {
+        $radius = $request->input('radius');
+        $curLat = $request->input('latitude');
+        $curLong = $request->input('longitude');
+        $places = new Collection();
+
+        $yelpResults = json_decode(YelpAPIController::searchByRadius($curLat, $curLong, $radius));
+        //$zomatoResults = ZomatoAPIController::searchByName($name);
+        //$foursquareResults = FourSquareAPIController::searchByName($name);
+
+        //Go through YELP results first
+        foreach ($yelpResults->businesses as $yelpResult) {
+            $place = $this->createOrUpdatePlace($yelpResult,
+                $yelpResult->coordinates->latitude,
+                $yelpResult->coordinates->longitude,
+                $curLat, $curLong, null, "yelp");
+            $places = $places->push($place);
+        }
+        //There are 10 places
+        // now we have to merge information from the 10 places
+        // gotten from other APIS
+        return $places;
+    }
+
+    /**
+     * Creates or Updates Place object in database
+     * Default result is for radius.
+     *
+     * @param $apiResult object POI from API
+     * @param $apiLat float Latitude of API place
+     * @param $apiLong float Longitude of API place
+     * @param $curLat float Latitude of place
+     * @param $curLong float Longitude of place
+     * @param $name string Name of place (Null if
+     * @param $provider string Name of provider: "yelp","fsquare","zomato"
+     * @return Place Place created or updated.
+     */
+    public function createOrUpdatePlace($apiResult, $apiLat, $apiLong, $curLat, $curLong, $name, $provider)
+    {
+        $place = '';
+        if ($name && ($curLat == null || $curLong == null)) {
+            return;
+        } else {
+            $place = Place::whereBetween('latitude', [$curLat - 0.001, $curLat + 0.001])
+                ->whereBetween('longitude', [$curLong - 0.001, $curLong + 0.001])->first();
+            dd($place);
+            if ($place) {
+                $place->name = $place->name ?? $apiResult->name;
+                $place->city = $place->city ?? mb_strtolower($apiResult->location->city);
+                if ($provider == "yelp") {
+                    $place->image_url = $apiResult->image_url;
+                    $place->address = $place->address ?? $apiResult->location->display_address;
+                    $place->average_rating = $place->average_rating ?? $apiResult->rating;
+                    $place->latitude = $place->latitude ?? $apiResult->coordinates->latitude;
+                    $place->longitude = $place->longitude ?? $apiResult->coordinates->longitude;
+                    $place->qt_reviews = 0;
+//                    $types = $this->parse_categories_array($apiResult->cuisines, "zomato");
+//                    foreach ($types as $type){
+//                        $place->place_types()->save($type);
+//                    }
+//                    $place->reviews = $this->get_reviews($apiResult->id, "yelp");
+                }
+//                else if ($provider == "fsquare") {
+//                    $place->address = $place->address ?? $apiResult->location->formattedAddress;
+//                    $place->latitude = $place->latitude ?? $apiResult->location->lat;
+//                    $place->longitude = $place->longitude ?? $apiResult->location->lng;
+//                    $place->types = $this->parse_categories_array($apiResult->cuisines, "fsquare");
+//                } else if ($provider == "zomato") {
+//                    $place->image_url = $place->image_url ?? $apiResult->featured_image;
+//                    $place->address = $place->address ?? $apiResult->location->address;
+//                    $place->average_rating = $place->average_rating ?? $apiResult->user_rating->average_rating;
+//                    $place->latitude = $place->latitude ?? $apiResult->location->latitude;
+//                    $place->longitude = $place->longitude ?? $apiResult->location->longitude;
+//                    $place->types = $this->parse_categories_array($apiResult->cuisines, "zomato");
+//                    $place->reviews = $this->get_reviews($apiResult->id, "yelp");
+//                }
+                $place->update();
+                return $place;
+            }else{
+                $place = new Place();
+            }
+        }
+        //not same place
+        $place->name = $apiResult->name;
+        $place->city = mb_strtolower($apiResult->location->city);
+        if ($provider == "yelp") {
+            $place->image_url = $apiResult->image_url;
+            $place->address =  $apiResult->location->address1;
+            $place->average_rating =  $apiResult->rating;
+            $place->latitude =  $apiResult->coordinates->latitude;
+            $place->longitude =  $apiResult->coordinates->longitude;
+            $place->provider = "yelp";
+            $place->qt_reviews = 0;
+            $place->save();
+            $types = $this->parse_categories_array($apiResult->categories, "yelp");
+            foreach ($types as $type){
+                $place_type = PlaceType::where('type_id',$type)->where('place_id',$place->id)->first();
+                if(!$place_type){
+                    $place_type = new PlaceType(array('type_id' => $type, 'place_id'=> $place->id));
+                }
+                $place_type->save();
+            }
+//            $reviews = $this->get_reviews($apiResult->id, "yelp");
+        }
+//        else if ($provider == "fsquare") {
+//            $place->address =  $apiResult->location->formattedAddress;
+//            $place->latitude =  $apiResult->location->lat;
+//            $place->longitude =  $apiResult->location->lng;
+//            $place->types = $this->parse_categories_array($apiResult->cuisines, "fsquare");
+//        } else if ($provider == "zomato") {
+//            $place->image_url =  $apiResult->featured_image;
+//            $place->address =  $apiResult->location->address;
+//            $place->average_rating =  $apiResult->user_rating->average_rating;
+//            $place->latitude =  $apiResult->location->latitude;
+//            $place->longitude =  $apiResult->location->longitude;
+//            $types = $this->parse_categories_array($apiResult->cuisines, "zomato");
+//            foreach ($types as $type){
+//                $place->place_types()->save($type);
+//            }
+//            $place->reviews = $this->get_reviews($apiResult->id, "yelp");
+//            $place->qt_reviews = $place->reviews()->count();
+//        }
+        $place->save();
+        return $place;
+    }
+
 
     /**
      * Compares both latitude and longitude to the precision of 4 decimals
      * with a range of 0.0002 units upwards and downwards as margin of error
      *
-     * @param $coordinates1 array({'latitude': float, 'longitude': float})
-     * @param $coordinates2 array({'latitude': float, 'longitude': float})
+     * @param $apiLat float Latitude of API place
+     * @param $apiLong float Longitude of API place
+     * @param $curLat float Latitude of place
+     * @param $curLong float Longitude of place
      *
      * @return Boolean <strong>true</strong> if it's the same place, <strong>false</strong> if not
      */
-    private function is_same_place($coordinates1, $coordinates2)
+    private
+    function is_same_place($apiLat, $apiLong, $curLat, $curLong)
     {
         //check latitude
         $is_latitude_equal = false;
         $is_longitude_equal = false;
 
-        if (abs($coordinates1[0]['latitude'] - $coordinates2[0]['latitude']) < 0.0002) {
+        if (abs($curLat - $apiLat) < 0.0002) {
             $is_latitude_equal = true;
         }
-        if (abs($coordinates1[0]['longitude'] - $coordinates2[0]['longitude']) < 0.0002) {
+        if (abs($curLong - $apiLong) < 0.0002) {
             $is_longitude_equal = true;
         }
         return $is_latitude_equal && $is_longitude_equal;
@@ -163,7 +282,8 @@ class LocalhostAPIController extends Controller
      *
      * @return Region found or newly created region Id
      */
-    private function find_city($city)
+    private
+    function find_city($city)
     {
         $city_to_use = City::where('name', strtolower($city))->get();
 
@@ -186,7 +306,8 @@ class LocalhostAPIController extends Controller
      * @return array found or newly created category(ies) Id(s)
      * @throws \InvalidArgumentException Invalid argument categories
      */
-    private function find_categories($categories, $provider)
+    private
+    function find_categories($categories, $provider)
     {
         if (!contains(array("yelp", "foursquare", "zomato"), $provider)) {
             throw new \InvalidArgumentException("Provider value is not supported: ", $provider);
@@ -243,38 +364,86 @@ class LocalhostAPIController extends Controller
     /**
      * Parses categories object from given provider
      *
-     * @param $categories array Array of category results
+     * @param $categories array|string Array of category results
      * @param $provider string Provider. Supports "yelp", "fsquare", "zomato"
      *
      * @return array of categories
      */
-    private function parse_categories_array($categories, $provider)
+    private
+    function parse_categories_array($categories, $provider)
     {
         $result = array();
-        if($provider == "yelp"){
-            foreach ($categories as $category){
-                array_push($result, strtolower($category->alias));
+        $temp = array();
+        if ($provider == "yelp") {
+            foreach ($categories as $category) {
+                array_push($temp, strtolower($category->alias));
             }
-            return $result;
-        }else if($provider == "fsquare"){
-            foreach ($categories as $category){
-                array_push($result, strtolower($category->shortName));
+        } else if ($provider == "fsquare") {
+            foreach ($categories as $category) {
+                array_push($temp, strtolower($category->shortName));
             }
-            return $result;
-        }else if($provider == "zomato"){
-
+        } else if ($provider == "zomato") {
+            $temp = explode(',', $categories);
         }
+        foreach ($temp as $type){
+            $t = Type::where('name', $type)->first();
+            if(!$t) {
+                //if theres no type, create
+                $t = new Type(array('name' => $type));
+                $t->save();
+            }
+            //if it exists only push
+            array_push($result, $t->id);
+        }
+        return $result;
     }
 
     /**
+     *
+     *
      * @param string|integer $id Id of object returned from api
+     * @param array $apiResults Results from api
      * @param string $provider Provider. Supports "yelp", "fsquare", "zomato"
+     *
+     * @return array Ids of reviews
      */
-    private function get_reviews($id, string $provider)
+    private
+    function get_reviews($id,$place_id, $provider)
     {
-        if($provider == "yelp"){
+        if ($provider == "yelp") {
             $result = YelpAPIController::get_reviews($id);
             return $result;
+        }else if($provider == "zomato"){
+            $result = ZomatoAPIController::get_reviews($id);
+            return $result;
         }
+    }
+
+
+    /**
+     * Calculates the great-circle distance between two points, with
+     * the Haversine formula.
+     * @param float $latitudeFrom Latitude of start point in [deg decimal]
+     * @param float $longitudeFrom Longitude of start point in [deg decimal]
+     * @param float $latitudeTo Latitude of target point in [deg decimal]
+     * @param float $longitudeTo Longitude of target point in [deg decimal]
+     * @param float $earthRadius Mean earth radius in [m]
+     * @return float Distance between points in [m] (same as earthRadius)
+     */
+    function haversineGreatCircleDistance(
+        $latitudeFrom, $longitudeFrom, $latitudeTo, $longitudeTo, $earthRadius = 6371000)
+    {
+        // convert from degrees to radians
+        $latFrom = deg2rad($latitudeFrom);
+        $lonFrom = deg2rad($longitudeFrom);
+        $latTo = deg2rad($latitudeTo);
+        $lonTo = deg2rad($longitudeTo);
+
+        $latDelta = $latTo - $latFrom;
+        $lonDelta = $lonTo - $lonFrom;
+
+        $angle = 2 * asin(sqrt(pow(sin($latDelta / 2), 2) +
+                cos($latFrom) * cos($latTo) * pow(sin($lonDelta / 2), 2)));
+        return $angle * $earthRadius;
     }
 }

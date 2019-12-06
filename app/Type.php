@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Provider extends Model
+class Type extends Model
 {
     /**
      * The attributes that are mass assignable.
@@ -12,7 +12,7 @@ class Provider extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'url', 'logo_url'
+        'name', 'description'
     ];
 
     /**
@@ -21,4 +21,8 @@ class Provider extends Model
      * @var array
      */
     protected $hidden = [];
+
+    public function places(){
+        return $this->belongsToMany('App\Place');
+    }
 }

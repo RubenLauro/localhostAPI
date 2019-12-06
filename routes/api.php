@@ -32,5 +32,6 @@ Route::middleware('auth:api')->group(function () {
 Route::get('testYelp','YelpAPIController@test');
 Route::get('testZomato','ZomatoAPIController@test');
 Route::get('testFoursquare','FoursquareAPIController@test');
-Route::get('search','LocalhostAPIController@searchByName');
+Route::get('search','LocalhostAPIController@searchByRadius');
+Route::get('searchByName','LocalhostAPIController@searchByName');
 

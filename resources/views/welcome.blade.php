@@ -77,7 +77,7 @@
                     <a href="api/testYelp"> Test Yelp </a>
                     <a href="api/testZomato"> Test Zomato </a>
                     <a href="api/testFoursquare"> Test Foursquare </a>
-                    <a href="api/search?name=">Test LocalHost Search Endpoint</a>
+                    <a href="api/search?latitude=39.735896&longitude=-8.821333&radius=2000">Test LocalHost Search Endpoint</a>
 {{--                    <a href="https://laravel.com/docs">Documentation</a>--}}
 {{--                    <a href="https://laracasts.com">Laracasts</a>--}}
 {{--                    <a href="https://laravel-news.com">News</a>--}}

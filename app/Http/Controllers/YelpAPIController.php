@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Review;
 use Illuminate\Http\Request;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client;
@@ -25,10 +26,31 @@ class YelpAPIController extends Controller
     {
         $apikey = env("YELP_API_KEY");
         $client = new Client();
-        $result = $client->get('https://api.yelp.com/v3/businesses/'. $id . '/reviews',[
+        $result = $client->get('https://api.yelp.com/v3/businesses/' . $id . '/reviews', [
             'headers' => ['Authorization' => 'Bearer ' . $apikey]
         ]);
-        return json_decode($result->getBody())->reviews;
+        $reviews = json_decode($result->getBody())->reviews;
+        foreach ($reviews as $review){
+            $r = Review::where('user', $review->user->name)->where('text',$review->text)->where('provider',"yelp");
+            if(!$r){
+                $r = new Review();
+                $r->user = $review->user->name;
+                $r->text = $review->text;
+                $r->provider = "yelp";
+                $r->score= $review->rating;
+                $r->save();
+            }
+        }
+    }
+
+    public static function searchByRadius($curLat, $curLon, $radius)
+    {
+        $apikey = env("YELP_API_KEY");
+        $client = new Client();
+        $result = $client->get('https://api.yelp.com/v3/businesses/search?sort_by=distance&radius=' . $radius .'&latitude=' . $curLat . '&longitude=' . $curLon, [
+            'headers' => ['Authorization' => 'Bearer ' . $apikey]
+        ]);
+        return $result->getBody();
     }
 
     /**
