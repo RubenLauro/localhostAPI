@@ -126,6 +126,21 @@ class LocalhostAPIController extends Controller
         $curLong = $request->input('longitude');
         $places = new Collection();
 
+        //go to db first
+        $result = new Collection();
+        $tmpResult = Place::all();
+        $counter = 10;
+        foreach ($tmpResult as $r) {
+            if ($r->getRadius($curLat,$curLong) <= $radius) {
+                $result->push($r);
+                $counter++;
+            }
+            if ($counter == 10){
+                return $result;
+            }
+        }
+
+
         $yelpResults = json_decode(YelpAPIController::searchByRadius($curLat, $curLong, $radius));
         //$zomatoResults = ZomatoAPIController::searchByName($name);
         //$foursquareResults = FourSquareAPIController::searchByName($name);
@@ -163,9 +178,8 @@ class LocalhostAPIController extends Controller
         if ($name && ($curLat == null || $curLong == null)) {
             return;
         } else {
-            $place = Place::whereBetween('latitude', [$curLat - 0.001, $curLat + 0.001])
-                ->whereBetween('longitude', [$curLong - 0.001, $curLong + 0.001])->first();
-            dd($place);
+            $place = Place::whereBetween('latitude', [$apiLat - 0.001, $apiLat + 0.001])
+                ->whereBetween('longitude', [$apiLong - 0.001, $apiLong + 0.001])->first();
             if ($place) {
                 $place->name = $place->name ?? $apiResult->name;
                 $place->city = $place->city ?? mb_strtolower($apiResult->location->city);
@@ -198,7 +212,7 @@ class LocalhostAPIController extends Controller
 //                }
                 $place->update();
                 return $place;
-            }else{
+            } else {
                 $place = new Place();
             }
         }
@@ -207,18 +221,18 @@ class LocalhostAPIController extends Controller
         $place->city = mb_strtolower($apiResult->location->city);
         if ($provider == "yelp") {
             $place->image_url = $apiResult->image_url;
-            $place->address =  $apiResult->location->address1;
-            $place->average_rating =  $apiResult->rating;
-            $place->latitude =  $apiResult->coordinates->latitude;
-            $place->longitude =  $apiResult->coordinates->longitude;
+            $place->address = $apiResult->location->address1;
+            $place->average_rating = $apiResult->rating;
+            $place->latitude = $apiResult->coordinates->latitude;
+            $place->longitude = $apiResult->coordinates->longitude;
             $place->provider = "yelp";
             $place->qt_reviews = 0;
             $place->save();
             $types = $this->parse_categories_array($apiResult->categories, "yelp");
-            foreach ($types as $type){
-                $place_type = PlaceType::where('type_id',$type)->where('place_id',$place->id)->first();
-                if(!$place_type){
-                    $place_type = new PlaceType(array('type_id' => $type, 'place_id'=> $place->id));
+            foreach ($types as $type) {
+                $place_type = PlaceType::where('type_id', $type)->where('place_id', $place->id)->first();
+                if (!$place_type) {
+                    $place_type = new PlaceType(array('type_id' => $type, 'place_id' => $place->id));
                 }
                 $place_type->save();
             }
@@ -385,9 +399,9 @@ class LocalhostAPIController extends Controller
         } else if ($provider == "zomato") {
             $temp = explode(',', $categories);
         }
-        foreach ($temp as $type){
+        foreach ($temp as $type) {
             $t = Type::where('name', $type)->first();
-            if(!$t) {
+            if (!$t) {
                 //if theres no type, create
                 $t = new Type(array('name' => $type));
                 $t->save();
@@ -408,12 +422,12 @@ class LocalhostAPIController extends Controller
      * @return array Ids of reviews
      */
     private
-    function get_reviews($id,$place_id, $provider)
+    function get_reviews($id, $place_id, $provider)
     {
         if ($provider == "yelp") {
             $result = YelpAPIController::get_reviews($id);
             return $result;
-        }else if($provider == "zomato"){
+        } else if ($provider == "zomato") {
             $result = ZomatoAPIController::get_reviews($id);
             return $result;
         }
