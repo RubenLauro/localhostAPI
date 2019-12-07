@@ -34,4 +34,5 @@ Route::get('testZomato','ZomatoAPIController@test');
 Route::get('testFoursquare','FoursquareAPIController@test');
 Route::get('search','LocalhostAPIController@searchByRadius');
 Route::get('searchByName','LocalhostAPIController@searchByName');
+Route::get('searchByCity','LocalhostAPIController@searchByCity');
 

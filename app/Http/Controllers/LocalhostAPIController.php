@@ -25,6 +25,14 @@ class LocalhostAPIController extends Controller
     {
         $name = $request->input('name');
         $places = new Collection();
+
+        //go to db first
+        $result = new Collection();
+        $tmpResult = Place::where('name', 'LIKE', '%' . $name . '%');
+        if ($tmpResult->total() >= 10) {
+            return $tmpResult;
+        }
+
         /**
          * Yelp
          *
@@ -106,7 +114,7 @@ class LocalhostAPIController extends Controller
             $place = $this->createOrUpdatePlace($yelpResult,
                 $yelpResult->coordinates->latitude,
                 $yelpResult->coordinates->longitude,
-                null, null, $name, "yelp");
+                null, null, $name, null, "yelp");
             $places = $places->push($place);
         }
         //There are 10 places
@@ -131,11 +139,11 @@ class LocalhostAPIController extends Controller
         $tmpResult = Place::all();
         $counter = 10;
         foreach ($tmpResult as $r) {
-            if ($r->getRadius($curLat,$curLong) <= $radius) {
+            if ($r->getRadius($curLat, $curLong) <= $radius) {
                 $result->push($r);
                 $counter++;
             }
-            if ($counter == 10){
+            if ($counter == 10) {
                 return $result;
             }
         }
@@ -150,7 +158,7 @@ class LocalhostAPIController extends Controller
             $place = $this->createOrUpdatePlace($yelpResult,
                 $yelpResult->coordinates->latitude,
                 $yelpResult->coordinates->longitude,
-                $curLat, $curLong, null, "yelp");
+                $curLat, $curLong, null, null, "yelp");
             $places = $places->push($place);
         }
         //There are 10 places
@@ -160,26 +168,137 @@ class LocalhostAPIController extends Controller
     }
 
     /**
+     * Search by city
+     *
+     */
+    function searchByCity(Request $request)
+    {
+        $city = $request->input('city');
+        $places = new Collection();
+
+        //go to db first
+        $result = new Collection();
+        $tmpResult = Place::where('city', 'LIKE', '%' . $city . '%')->paginate(10);
+        if ($tmpResult->total() >= 1) {
+            return $tmpResult;
+        }
+
+        /**
+         * Yelp
+         *
+         * response.businesses
+         * Object({
+         *      id: string,
+         *      alias: string,
+         *      name: string,
+         *      image_url: string,
+         *      is_closed: boolean,
+         *      url: string,
+         *      categories: Array({alias: string, name: string}),
+         *      rating: float,
+         *      coordinates: Array({latitude: float, longitude:float}),
+         *      location: Array({address1/2/3, city, zip-code,country,display_address})
+         * })
+         */
+        $yelpResults = json_decode(YelpAPIController::searchByCity($city));
+
+        /**
+         * Zomato
+         *
+         * response.restaurants
+         * Object({
+         *      R: has_menu_status({delivery: number | -1, takeaway: number | -1}),
+         *      id: number,
+         *      name: string,
+         *      url: string,
+         *      location: Array({
+         *           address:string,
+         *           locality: string,
+         *           city: string,
+         *           city_id: number,
+         *           latitude: float,
+         *           longitude: float,
+         *           zipcode: string,
+         *           country_id: number,
+         *           locality_verbose: string
+         *      ]),
+         *      cuisines: string ("XX, XX, XX"),
+         *      average_cost_for_two: number,
+         *      price_range: number,
+         *      currency: string ("€"),
+         *      highlights: Array({string, string, ...}),
+         *      all_reviews_count: number,
+         *      user_rating: Array({
+         *           aggregate_rating: float,
+         *           rating_text: string,
+         *           rating_color: string,
+         *           rating_obj: Array({title:Array(), bg_color:Array()})
+         *           votes: number
+         *      }),
+         *      photo_count: number,
+         *      photos_url: string,
+         *      phone_numbers: string ("XX, XX, XX"),
+         *      establishment: string
+         *
+         * })
+         */
+        //$zomatoResults = ZomatoAPIController::searchByName($name);
+
+        /**
+         * Foursquare
+         *
+         * response.venues
+         * Object({
+         *      id: string,
+         *      name: string,
+         *      location: string,
+         *      cc: string,
+         *      formatted_address: string,
+         *      categories: Array({id,name,pluralName,shortName,icon:Array(prefix),primary})
+         * })
+         */
+        //$foursquareResults = FourSquareAPIController::searchByName($name);
+
+        //Go through YELP results first
+        foreach ($yelpResults->businesses as $yelpResult) {
+            $place = $this->createOrUpdatePlace($yelpResult,
+                $yelpResult->coordinates->latitude,
+                $yelpResult->coordinates->longitude,
+                null, null, null, $city, "yelp");
+            $places = $places->push($place);
+        }
+        //There are 10 places
+        // now we have to merge information from the 10 places
+        // gotten from other APIS
+        // dd($places);
+        return $places;
+    }
+
+
+    /**
      * Creates or Updates Place object in database
      * Default result is for radius.
      *
      * @param $apiResult object POI from API
      * @param $apiLat float Latitude of API place
      * @param $apiLong float Longitude of API place
-     * @param $curLat float Latitude of place
-     * @param $curLong float Longitude of place
-     * @param $name string Name of place (Null if
+     * @param $curLat float Latitude of place (Null if city or name defined)
+     * @param $curLong float Longitude of place (Null if city or name defined)
+     * @param $name string Name of place (Null if city, curLat or curLong defined)
+     * @param $city string Name of place (Null if name, curLat or curLong defined)
      * @param $provider string Name of provider: "yelp","fsquare","zomato"
      * @return Place Place created or updated.
      */
-    public function createOrUpdatePlace($apiResult, $apiLat, $apiLong, $curLat, $curLong, $name, $provider)
+    private function createOrUpdatePlace($apiResult, $apiLat, $apiLong, $curLat, $curLong, $name, $city, $provider)
     {
         $place = '';
-        if ($name && ($curLat == null || $curLong == null)) {
+        if ($name && (($curLat == null || $curLong == null) && $city == null)) {
+            return;
+        } else if ($city && (($curLat == null || $curLong == null) && $name == null)) {
             return;
         } else {
-            $place = Place::whereBetween('latitude', [$apiLat - 0.001, $apiLat + 0.001])
-                ->whereBetween('longitude', [$apiLong - 0.001, $apiLong + 0.001])->first();
+            $place = Place::whereBetween('latitude', [$apiLat - 0.0002, $apiLat + 0.0002])
+                ->whereBetween('longitude', [$apiLong - 0.0002, $apiLong + 0.0002])->first();
             if ($place) {
                 $place->name = $place->name ?? $apiResult->name;
                 $place->city = $place->city ?? mb_strtolower($apiResult->location->city);
@@ -272,8 +391,7 @@ class LocalhostAPIController extends Controller
      *
      * @return Boolean <strong>true</strong> if it's the same place, <strong>false</strong> if not
      */
-    private
-    function is_same_place($apiLat, $apiLong, $curLat, $curLong)
+    private function is_same_place($apiLat, $apiLong, $curLat, $curLong)
     {
         //check latitude
         $is_latitude_equal = false;
@@ -296,8 +414,7 @@ class LocalhostAPIController extends Controller
      *
      * @return Region found or newly created region Id
      */
-    private
-    function find_city($city)
+    private function find_city($city)
     {
         $city_to_use = City::where('name', strtolower($city))->get();
 
@@ -320,8 +437,7 @@ class LocalhostAPIController extends Controller
      * @return array found or newly created category(ies) Id(s)
      * @throws \InvalidArgumentException Invalid argument categories
      */
-    private
-    function find_categories($categories, $provider)
+    private function find_categories($categories, $provider)
     {
         if (!contains(array("yelp", "foursquare", "zomato"), $provider)) {
             throw new \InvalidArgumentException("Provider value is not supported: ", $provider);
@@ -383,8 +499,7 @@ class LocalhostAPIController extends Controller
      *
      * @return array of categories
      */
-    private
-    function parse_categories_array($categories, $provider)
+    private function parse_categories_array($categories, $provider)
     {
         $result = array();
         $temp = array();
@@ -421,8 +536,7 @@ class LocalhostAPIController extends Controller
      *
      * @return array Ids of reviews
      */
-    private
-    function get_reviews($id, $place_id, $provider)
+    private function get_reviews($id, $place_id, $provider)
     {
         if ($provider == "yelp") {
             $result = YelpAPIController::get_reviews($id);
@@ -444,7 +558,7 @@ class LocalhostAPIController extends Controller
      * @param float $earthRadius Mean earth radius in [m]
      * @return float Distance between points in [m] (same as earthRadius)
      */
-    function haversineGreatCircleDistance(
+    private function haversineGreatCircleDistance(
         $latitudeFrom, $longitudeFrom, $latitudeTo, $longitudeTo, $earthRadius = 6371000)
     {
         // convert from degrees to radians
