@@ -36,7 +36,7 @@ class Place extends Model
     protected $appends = ['types'];
 
     public function place_types(){
-        return $this->belongsToMany('App\Type','place_types','type_id','place_id');
+        return $this->belongsToMany('App\Type','place_types','place_id','type_id');
     }
 
     public function reviews(){

@@ -135,13 +135,14 @@ class LocalhostAPIController extends Controller
         $places = new Collection();
 
         //go to db first
-        $result = new Collection();
-        $tmpResult = Place::all();
+        $tmpResult = Place::orderBy('id', 'ASC')->get();
         foreach ($tmpResult as $r) {
-            if ($r->getRadius($curLat, $curLong) <= $radius) {
-                $result->push($r);
+            if (!($r->getRadius($curLat, $curLong) <= $radius)) {
+                $tmpResult->forget($r->id);
             }
         }
+        return $tmpResult;
+
 
 
         $yelpResults = json_decode(YelpAPIController::searchByRadius($curLat, $curLong, $radius));
@@ -370,7 +371,6 @@ class LocalhostAPIController extends Controller
 //            $place->reviews = $this->get_reviews($apiResult->id, "yelp");
 //            $place->qt_reviews = $place->reviews()->count();
 //        }
-        $place->save();
         return $place;
     }
 
@@ -540,33 +540,5 @@ class LocalhostAPIController extends Controller
             $result = ZomatoAPIController::get_reviews($id);
             return $result;
         }
-    }
-
-
-    /**
-     * Calculates the great-circle distance between two points, with
-     * the Haversine formula.
-     * @param float $latitudeFrom Latitude of start point in [deg decimal]
-     * @param float $longitudeFrom Longitude of start point in [deg decimal]
-     * @param float $latitudeTo Latitude of target point in [deg decimal]
-     * @param float $longitudeTo Longitude of target point in [deg decimal]
-     * @param float $earthRadius Mean earth radius in [m]
-     * @return float Distance between points in [m] (same as earthRadius)
-     */
-    private function haversineGreatCircleDistance(
-        $latitudeFrom, $longitudeFrom, $latitudeTo, $longitudeTo, $earthRadius = 6371000)
-    {
-        // convert from degrees to radians
-        $latFrom = deg2rad($latitudeFrom);
-        $lonFrom = deg2rad($longitudeFrom);
-        $latTo = deg2rad($latitudeTo);
-        $lonTo = deg2rad($longitudeTo);
-
-        $latDelta = $latTo - $latFrom;
-        $lonDelta = $lonTo - $lonFrom;
-
-        $angle = 2 * asin(sqrt(pow(sin($latDelta / 2), 2) +
-                cos($latFrom) * cos($latTo) * pow(sin($lonDelta / 2), 2)));
-        return $angle * $earthRadius;
     }
 }

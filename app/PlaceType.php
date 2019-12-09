@@ -14,4 +14,5 @@ class PlaceType extends Model
     protected $fillable = [
         'type_id', 'place_id'
     ];
+
 }
