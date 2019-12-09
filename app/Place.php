@@ -16,12 +16,10 @@ class Place extends Model
         'name',
         'image_url',
         'address',
+        'city',
         'average_rating',
-        'reviews',
         'latitude',
         'longitude',
-        'types',
-        'city',
         'qt_reviews',
         'provider',
     ];
@@ -35,12 +33,26 @@ class Place extends Model
 
     ];
 
+    protected $appends = ['types'];
+
     public function place_types(){
         return $this->belongsToMany('App\Type','place_types','type_id','place_id');
     }
 
     public function reviews(){
         return $this->hasMany('App\Review','place_id','id');
+    }
+
+    public function getTypesAttribute(){
+        $types = array();
+        foreach ($this->place_types()->get() as $type) {
+            array_push($types, $type->name);
+        }
+        return $this->attributes['types'] = $types;
+    }
+
+    public function setQtReviewsAttribute(){
+        return $this->attributes['qt_reviews'] = $this->reviews()->get()->count();
     }
 
     /**

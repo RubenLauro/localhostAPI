@@ -137,14 +137,9 @@ class LocalhostAPIController extends Controller
         //go to db first
         $result = new Collection();
         $tmpResult = Place::all();
-        $counter = 10;
         foreach ($tmpResult as $r) {
             if ($r->getRadius($curLat, $curLong) <= $radius) {
                 $result->push($r);
-                $counter++;
-            }
-            if ($counter == 10) {
-                return $result;
             }
         }
 
