@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 class PlaceController extends Controller
 {
     public function storeFavorite(Place $place){
-        if(!$place->is_favorite(Auth::id()))
+        if($place->is_favorite(Auth::id())->isEmpty())
             Auth::user()->favorites()->attach($place->id);
         else
             return response()->json(["message" => "Place already a favorite!"], 409);
@@ -17,7 +17,7 @@ class PlaceController extends Controller
     }
 
     public function deleteFavorite(Place $place){
-        if($place->is_favorite(Auth::id()))
+        if(!$place->is_favorite(Auth::id())->isEmpty())
             Auth::user()->favorites()->detach($place->id);
         else
             return response()->json(["message" => "Place does not exist in the favorites list!"], 409);
