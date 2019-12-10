@@ -17,7 +17,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'first_name', 'last_name', 'email', 'password', ''
+        'first_name', 'last_name', 'email', 'password',
     ];
 
     /**
@@ -28,4 +28,10 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+
+    public function favorites()
+    {
+        return $this->belongsToMany('App\Place', 'favorites', 'user_id', 'place_id');
+    }
 }

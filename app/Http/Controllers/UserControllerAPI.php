@@ -112,4 +112,8 @@ class UserControllerAPI extends Controller
         }
         return view('auth.passwords.reset', ['token' => $token, 'email' => $email]);
     }
+
+    public function getFavorites(){
+        return Auth::user()->favorites()->get();
+    }
 }

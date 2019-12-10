@@ -26,7 +26,11 @@ Route::middleware('auth:api')->group(function () {
 
     Route::put('me/update', 'UserControllerAPI@update');
 
-    Route::post('avatar', 'UserControllerAPI@uploadAvatar'); //como é file tem de ser post
+    Route::post('avatar', 'UserControllerAPI@uploadAvatar'); //como é file tem de ser post //parabéns
+
+    Route::get('favorites', 'UserControllerAPI@getFavorites');
+    Route::post('favorite/{place}', 'PlaceController@storeFavorite');
+    Route::delete('favorite/{place}', 'PlaceController@deleteFavorite');
 });
 
 Route::get('testYelp','YelpAPIController@test');

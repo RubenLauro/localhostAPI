@@ -2,10 +2,29 @@
 
 namespace App\Http\Controllers;
 
+use App\Place;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PlaceController extends Controller
 {
+    public function storeFavorite(Place $place){
+        if(!$place->is_favorite(Auth::id()))
+            Auth::user()->favorites()->attach($place->id);
+        else
+            return response()->json(["message" => "Place already a favorite!"], 409);
+        return response()->json(["message" => "Favorite added successfully!"], 200);
+    }
+
+    public function deleteFavorite(Place $place){
+        if($place->is_favorite(Auth::id()))
+            Auth::user()->favorites()->detach($place->id);
+        else
+            return response()->json(["message" => "Place does not exist in the favorites list!"], 409);
+        return response()->json(["message" => "Favorite removed successfully!"], 200);
+    }
+
+
     /**
      * Display a listing of the resource.
      *
@@ -45,7 +64,7 @@ class PlaceController extends Controller
      */
     public function show($id)
     {
-        //
+
     }
 
     /**

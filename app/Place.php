@@ -43,6 +43,15 @@ class Place extends Model
         return $this->hasMany('App\Review','place_id','id');
     }
 
+    public function users()
+    {
+        return $this->belongsToMany('App\User', 'favorites', 'place_id', 'user_id');
+    }
+
+    public function is_favorite($user_id){
+        return $this->users()->where('user_id',$user_id)->get();
+    }
+
     public function getTypesAttribute(){
         $types = array();
         foreach ($this->place_types()->get() as $type) {
