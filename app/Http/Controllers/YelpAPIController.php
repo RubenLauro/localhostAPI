@@ -72,7 +72,17 @@ class YelpAPIController extends Controller
     {
         $apikey = env("YELP_API_KEY");
         $client = new Client();
-        $result = $client->get('https://api.yelp.com/v3/businesses/search?location=leiria&limit=10&term=' . $query, [
+        $result = $client->get('https://api.yelp.com/v3/businesses/search?location=leiria&term=' . $query, [
+            'headers' => ['Authorization' => 'Bearer ' . $apikey]
+        ]);
+        return $result->getBody();
+    }
+
+    public static function searchByCity($query)
+    {
+        $apikey = env("YELP_API_KEY");
+        $client = new Client();
+        $result = $client->get('https://api.yelp.com/v3/businesses/search?location=' . $query, [
             'headers' => ['Authorization' => 'Bearer ' . $apikey]
         ]);
         return $result->getBody();

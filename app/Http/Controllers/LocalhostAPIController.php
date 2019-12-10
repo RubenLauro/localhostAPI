@@ -27,11 +27,9 @@ class LocalhostAPIController extends Controller
         $places = new Collection();
 
         //go to db first
-        $result = new Collection();
-        $tmpResult = Place::where('name', 'LIKE', '%' . $name . '%');
-        if ($tmpResult->total() >= 10) {
+        $tmpResult = Place::where('name', 'LIKE', '%' . $name . '%')->get();
+        if($tmpResult->count() >= 1)
             return $tmpResult;
-        }
 
         /**
          * Yelp
@@ -155,7 +153,8 @@ class LocalhostAPIController extends Controller
                 $yelpResult->coordinates->latitude,
                 $yelpResult->coordinates->longitude,
                 $curLat, $curLong, null, null, "yelp");
-            $places = $places->push($place);
+            if($place != null)
+                $places = $places->push($place);
         }
         //There are 10 places
         // now we have to merge information from the 10 places
@@ -173,11 +172,9 @@ class LocalhostAPIController extends Controller
         $places = new Collection();
 
         //go to db first
-        $result = new Collection();
-        $tmpResult = Place::where('city', 'LIKE', '%' . $city . '%')->paginate(10);
-        if ($tmpResult->total() >= 1) {
+        $tmpResult = Place::where('city', 'LIKE', '%' . $city . '%')->get();
+        if($tmpResult->count() >= 1)
             return $tmpResult;
-        }
 
         /**
          * Yelp
@@ -261,7 +258,8 @@ class LocalhostAPIController extends Controller
                 $yelpResult->coordinates->latitude,
                 $yelpResult->coordinates->longitude,
                 null, null, null, $city, "yelp");
-            $places = $places->push($place);
+            if($place != null)
+                $places = $places->push($place);
         }
         //There are 10 places
         // now we have to merge information from the 10 places
