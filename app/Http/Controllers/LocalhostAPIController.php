@@ -28,7 +28,7 @@ class LocalhostAPIController extends Controller
 
         //go to db first
         $tmpResult = Place::where('name', 'LIKE', '%' . $name . '%')->get();
-        if($tmpResult->count() >= 1)
+        if ($tmpResult->count() >= 1)
             return $tmpResult;
 
         /**
@@ -115,10 +115,6 @@ class LocalhostAPIController extends Controller
                 null, null, $name, null, "yelp");
             $places = $places->push($place);
         }
-        //There are 10 places
-        // now we have to merge information from the 10 places
-        // gotten from other APIS
-        // dd($places);
         return $places;
     }
 
@@ -139,8 +135,8 @@ class LocalhostAPIController extends Controller
                 $tmpResult->forget($r->id);
             }
         }
-        return $tmpResult;
-
+        if ($tmpResult->count() >= 1)
+            return $tmpResult;
 
 
         $yelpResults = json_decode(YelpAPIController::searchByRadius($curLat, $curLong, $radius));
@@ -153,7 +149,7 @@ class LocalhostAPIController extends Controller
                 $yelpResult->coordinates->latitude,
                 $yelpResult->coordinates->longitude,
                 $curLat, $curLong, null, null, "yelp");
-            if($place != null)
+            if ($place != null)
                 $places = $places->push($place);
         }
         //There are 10 places
@@ -173,8 +169,9 @@ class LocalhostAPIController extends Controller
 
         //go to db first
         $tmpResult = Place::where('city', 'LIKE', '%' . $city . '%')->get();
-        if($tmpResult->count() >= 1)
+        if ($tmpResult->count() >= 1) {
             return $tmpResult;
+        }
 
         /**
          * Yelp
@@ -258,7 +255,7 @@ class LocalhostAPIController extends Controller
                 $yelpResult->coordinates->latitude,
                 $yelpResult->coordinates->longitude,
                 null, null, null, $city, "yelp");
-            if($place != null)
+            if ($place != null)
                 $places = $places->push($place);
         }
         //There are 10 places
@@ -285,30 +282,25 @@ class LocalhostAPIController extends Controller
      */
     private function createOrUpdatePlace($apiResult, $apiLat, $apiLong, $curLat, $curLong, $name, $city, $provider)
     {
-        $place = '';
-        if ($name && (($curLat == null || $curLong == null) && $city == null)) {
-            return;
-        } else if ($city && (($curLat == null || $curLong == null) && $name == null)) {
-            return;
-        } else {
-            $place = Place::whereBetween('latitude', [$apiLat - 0.0002, $apiLat + 0.0002])
-                ->whereBetween('longitude', [$apiLong - 0.0002, $apiLong + 0.0002])->first();
-            if ($place) {
-                $place->name = $place->name ?? $apiResult->name;
-                $place->city = $place->city ?? mb_strtolower($apiResult->location->city);
-                if ($provider == "yelp") {
-                    $place->image_url = $apiResult->image_url;
-                    $place->address = $place->address ?? $apiResult->location->display_address;
-                    $place->average_rating = $place->average_rating ?? $apiResult->rating;
-                    $place->latitude = $place->latitude ?? $apiResult->coordinates->latitude;
-                    $place->longitude = $place->longitude ?? $apiResult->coordinates->longitude;
-                    $place->qt_reviews = 0;
+
+        $place = Place::whereBetween('latitude', [$apiLat - 0.0002, $apiLat + 0.0002])
+            ->whereBetween('longitude', [$apiLong - 0.0002, $apiLong + 0.0002])->first();
+        if ($place) {
+            $place->name = $place->name ?? $apiResult->name;
+            $place->city = $place->city ?? mb_strtolower($apiResult->location->city);
+            if ($provider == "yelp") {
+                $place->image_url = $apiResult->image_url;
+                $place->address = $place->address ?? $apiResult->location->display_address;
+                $place->average_rating = $place->average_rating ?? $apiResult->rating;
+                $place->latitude = $place->latitude ?? $apiResult->coordinates->latitude;
+                $place->longitude = $place->longitude ?? $apiResult->coordinates->longitude;
+                $place->qt_reviews = 0;
 //                    $types = $this->parse_categories_array($apiResult->cuisines, "zomato");
 //                    foreach ($types as $type){
 //                        $place->place_types()->save($type);
 //                    }
 //                    $place->reviews = $this->get_reviews($apiResult->id, "yelp");
-                }
+            }
 //                else if ($provider == "fsquare") {
 //                    $place->address = $place->address ?? $apiResult->location->formattedAddress;
 //                    $place->latitude = $place->latitude ?? $apiResult->location->lat;
@@ -323,11 +315,10 @@ class LocalhostAPIController extends Controller
 //                    $place->types = $this->parse_categories_array($apiResult->cuisines, "zomato");
 //                    $place->reviews = $this->get_reviews($apiResult->id, "yelp");
 //                }
-                $place->update();
-                return $place;
-            } else {
-                $place = new Place();
-            }
+            $place->update();
+            return $place;
+        } else {
+            $place = new Place();
         }
         //not same place
         $place->name = $apiResult->name;
