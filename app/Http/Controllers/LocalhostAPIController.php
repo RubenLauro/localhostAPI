@@ -111,8 +111,7 @@ class LocalhostAPIController extends Controller
         foreach ($yelpResults->businesses as $yelpResult) {
             $place = $this->createOrUpdatePlace($yelpResult,
                 $yelpResult->coordinates->latitude,
-                $yelpResult->coordinates->longitude,
-                null, null, $name, null, "yelp");
+                $yelpResult->coordinates->longitude,"yelp");
             $places = $places->push($place);
         }
         return $places;
@@ -265,6 +264,119 @@ class LocalhostAPIController extends Controller
         return $places;
     }
 
+    /**
+     * Search by ranking
+     *
+     */
+    function searchByRanking(Request $request)
+    {
+        $radius = $request->input('radius') ?? 5000;
+        $curLat = $request->input('latitude');
+        $curLong = $request->input('longitude');
+        $ranking = $request->input('ranking');
+        $places = new Collection();
+
+        //go to db first
+        $tmpResult = Place::where('average_rating','<=', $ranking)->orderBy('average_rating', 'DESC')->get();
+        foreach ($tmpResult as $r) {
+            if (!($r->getRadius($curLat, $curLong) <= $radius)) {
+                $tmpResult->forget($r->id);
+            }
+        }
+        if ($tmpResult->count() >= 1)
+            return $tmpResult;
+
+        /**
+         * Yelp
+         *
+         * response.businesses
+         * Object({
+         *      id: string,
+         *      alias: string,
+         *      name: string,
+         *      image_url: string,
+         *      is_closed: boolean,
+         *      url: string,
+         *      categories: Array({alias: string, name: string}),
+         *      rating: float,
+         *      coordinates: Array({latitude: float, longitude:float}),
+         *      location: Array({address1/2/3, city, zip-code,country,display_address})
+         * })
+         */
+        $yelpResults = json_decode(YelpAPIController::searchByRanking($curLat,$curLong, $radius,$ranking));
+
+        /**
+         * Zomato
+         *
+         * response.restaurants
+         * Object({
+         *      R: has_menu_status({delivery: number | -1, takeaway: number | -1}),
+         *      id: number,
+         *      name: string,
+         *      url: string,
+         *      location: Array({
+         *           address:string,
+         *           locality: string,
+         *           city: string,
+         *           city_id: number,
+         *           latitude: float,
+         *           longitude: float,
+         *           zipcode: string,
+         *           country_id: number,
+         *           locality_verbose: string
+         *      ]),
+         *      cuisines: string ("XX, XX, XX"),
+         *      average_cost_for_two: number,
+         *      price_range: number,
+         *      currency: string ("€"),
+         *      highlights: Array({string, string, ...}),
+         *      all_reviews_count: number,
+         *      user_rating: Array({
+         *           aggregate_rating: float,
+         *           rating_text: string,
+         *           rating_color: string,
+         *           rating_obj: Array({title:Array(), bg_color:Array()})
+         *           votes: number
+         *      }),
+         *      photo_count: number,
+         *      photos_url: string,
+         *      phone_numbers: string ("XX, XX, XX"),
+         *      establishment: string
+         *
+         * })
+         */
+        //$zomatoResults = ZomatoAPIController::searchByName($name);
+
+        /**
+         * Foursquare
+         *
+         * response.venues
+         * Object({
+         *      id: string,
+         *      name: string,
+         *      location: string,
+         *      cc: string,
+         *      formatted_address: string,
+         *      categories: Array({id,name,pluralName,shortName,icon:Array(prefix),primary})
+         * })
+         */
+        //$foursquareResults = FourSquareAPIController::searchByName($name);
+
+        //Go through YELP results first
+        foreach ($yelpResults->businesses as $yelpResult) {
+            $place = $this->createOrUpdatePlace($yelpResult,
+                $yelpResult->coordinates->latitude,
+                $yelpResult->coordinates->longitude,
+                null, null, null, $city, "yelp");
+            if ($place != null)
+                $places = $places->push($place);
+        }
+        //There are 10 places
+        // now we have to merge information from the 10 places
+        // gotten from other APIS
+        // dd($places);
+        return $places;
+    }
 
     /**
      * Creates or Updates Place object in database
@@ -273,10 +385,6 @@ class LocalhostAPIController extends Controller
      * @param $apiResult object POI from API
      * @param $apiLat float Latitude of API place
      * @param $apiLong float Longitude of API place
-     * @param $curLat float Latitude of place (Null if city or name defined)
-     * @param $curLong float Longitude of place (Null if city or name defined)
-     * @param $name string Name of place (Null if city, curLat or curLong defined)
-     * @param $city string Name of place (Null if name, curLat or curLong defined)
      * @param $provider string Name of provider: "yelp","fsquare","zomato"
      * @return Place Place created or updated.
      */
@@ -317,9 +425,8 @@ class LocalhostAPIController extends Controller
 //                }
             $place->update();
             return $place;
-        } else {
-            $place = new Place();
         }
+        $place = new Place();
         //not same place
         $place->name = $apiResult->name;
         $place->city = mb_strtolower($apiResult->location->city);
