@@ -135,7 +135,7 @@ class LocalhostAPIController extends Controller
             }
         }
         if ($tmpResult->count() >= 1)
-            return $tmpResult;
+            return response()->json($tmpResult);
 
 
         $yelpResults = json_decode(YelpAPIController::searchByRadius($curLat, $curLong, $radius));
