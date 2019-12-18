@@ -33,7 +33,7 @@ class Place extends Model
 
     ];
 
-    protected $appends = ['types'];
+    protected $appends = ['types'/*,'qt_reviews','reviews'*/];
 
     public function place_types(){
         return $this->belongsToMany('App\Type','place_types','place_id','type_id');
@@ -60,9 +60,18 @@ class Place extends Model
         return $this->attributes['types'] = $types;
     }
 
-    public function setQtReviewsAttribute(){
-        return $this->attributes['qt_reviews'] = $this->reviews()->get()->count();
-    }
+//    public function getReviewsAttribute(){
+//        $reviews = array();
+//        foreach ($this->reviews()->get() as $review) {
+//            array_push($reviews, $review);
+//        }
+//        return $this->attributes['reviews'] = $reviews;
+//    }
+
+//    public function getQtReviewsAttribute(){
+//        $count = $this->reviews()->get()->count();
+//        return $this->attributes['qt_reviews'] = $count;
+//    }
 
     /**
      * Compares both latitude and longitude to the precision of 4 decimals

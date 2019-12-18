@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Place;
 use App\Review;
 use Illuminate\Http\Request;
 use GuzzleHttp\Exception\GuzzleException;
@@ -18,11 +19,11 @@ class YelpAPIController extends Controller
     /**
      * Gets reviews from id of business
      *
-     * @param int|string $id
+     * @param $id string to update reviews
+     * @param $place_id int to update reviews
      *
-     * @return array
      */
-    public static function get_reviews($id)
+    public static function get_reviews($id, $place_id)
     {
         $apikey = env("YELP_API_KEY");
         $client = new Client();
@@ -30,14 +31,15 @@ class YelpAPIController extends Controller
             'headers' => ['Authorization' => 'Bearer ' . $apikey]
         ]);
         $reviews = json_decode($result->getBody())->reviews;
-        foreach ($reviews as $review){
-            $r = Review::where('user', $review->user->name)->where('text',$review->text)->where('provider',"yelp");
-            if(!$r){
+        foreach ($reviews as $review) {
+            $r = Review::where('user_name', $review->user->name)->where('text', $review->text)->where('provider', "yelp")->get();
+            if ($r->isEmpty()) {
                 $r = new Review();
-                $r->user = $review->user->name;
+                $r->user_name = $review->user->name;
                 $r->text = $review->text;
                 $r->provider = "yelp";
-                $r->score= $review->rating;
+                $r->rating = $review->rating;
+                $r->place_id = $place_id;
                 $r->save();
             }
         }
@@ -47,7 +49,7 @@ class YelpAPIController extends Controller
     {
         $apikey = env("YELP_API_KEY");
         $client = new Client();
-        $result = $client->get('https://api.yelp.com/v3/businesses/search?sort_by=distance&radius=' . $radius .'&latitude=' . $curLat . '&longitude=' . $curLon, [
+        $result = $client->get('https://api.yelp.com/v3/businesses/search?sort_by=distance&radius=' . $radius . '&latitude=' . $curLat . '&longitude=' . $curLon, [
             'headers' => ['Authorization' => 'Bearer ' . $apikey]
         ]);
         return $result->getBody();

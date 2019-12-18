@@ -89,7 +89,7 @@ class UserControllerAPI extends Controller
             return redirect('/success')->with('message', 'Password updated successfully');
         }
 
-        return redirect('/success')->with('fail', 'Couldn\'t update Password');
+        return redirect('/success')->with('fail', "Couldn't update Password");
     }
 
     public function resetPasswordSendLink(PasswordResetLinkRequest $request){
