@@ -251,8 +251,7 @@ class LocalhostAPIController extends Controller
         foreach ($yelpResults->businesses as $yelpResult) {
             $place = $this->createOrUpdatePlace($yelpResult,
                 $yelpResult->coordinates->latitude,
-                $yelpResult->coordinates->longitude,
-                null, null, null, $city, "yelp");
+                $yelpResult->coordinates->longitude,"yelp");
             if ($place != null)
                 $places = $places->push($place);
         }
