@@ -129,13 +129,14 @@ class LocalhostAPIController extends Controller
 
         //go to db first
         $tmpResult = Place::orderBy('id', 'ASC')->get();
+        $result = [];
         foreach ($tmpResult as $r) {
-            if (!($r->getRadius($curLat, $curLong) <= $radius)) {
-                $tmpResult->forget($r->id);
+            if ($r->getRadius($curLat, $curLong) <= $radius) {
+                array_push($result, $r);
             }
         }
-        if ($tmpResult->count() >= 1)
-            return response()->json($tmpResult);
+        if (count($result) >= 1)
+            return response()->json($result);
 
 
         $yelpResults = json_decode(YelpAPIController::searchByRadius($curLat, $curLong, $radius));
@@ -251,7 +252,7 @@ class LocalhostAPIController extends Controller
         foreach ($yelpResults->businesses as $yelpResult) {
             $place = $this->createOrUpdatePlace($yelpResult,
                 $yelpResult->coordinates->latitude,
-                $yelpResult->coordinates->longitude,"yelp");
+                $yelpResult->coordinates->longitude, "yelp");
             if ($place != null)
                 $places = $places->push($place);
         }
@@ -275,13 +276,14 @@ class LocalhostAPIController extends Controller
 
         //go to db first
         $tmpResult = Place::where('average_rating', '<=', $ranking)->orderBy('average_rating', 'DESC')->get();
+        $result = [];
         foreach ($tmpResult as $r) {
             if (!($r->getRadius($curLat, $curLong) <= $radius)) {
-                $tmpResult->forget($r->id);
+                array_push($result);
             }
         }
-        if ($tmpResult->count() >= 1)
-            return $tmpResult;
+        if (count($result) >= 1)
+            return $result;
 
         /**
          * Yelp
@@ -469,7 +471,7 @@ class LocalhostAPIController extends Controller
                 }
                 $place_type->save();
             }
-            $this->createOrUpdateReviews($place->yelp_id, $place->id,"yelp");
+            $this->createOrUpdateReviews($place->yelp_id, $place->id, "yelp");
             $place->qt_reviews = $place->reviews()->get()->count();
             $place->update();
 //            $reviews = $this->get_reviews($apiResult->id, "yelp");
@@ -496,7 +498,8 @@ class LocalhostAPIController extends Controller
     }
 
 
-    function getReviews($place_id){
+    function getReviews($place_id)
+    {
         return Place::find($place_id)->reviews()->get();
     }
     /**
