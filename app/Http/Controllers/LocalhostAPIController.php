@@ -449,15 +449,15 @@ class LocalhostAPIController extends Controller
         }
         $place = new Place();
         //not same place
-        $place->name = $apiResult->name;
-        $place->city = mb_strtolower($apiResult->location->city);
+        $place->name = $apiResult->name ?? 'Sem nome';
+        $place->city = mb_strtolower($apiResult->location->city) ?? '';
         if ($provider == "yelp") {
-            $place->yelp_id = $apiResult->id;
-            $place->image_url = $apiResult->image_url;
-            $place->address = $apiResult->location->address1;
-            $place->average_rating = $apiResult->rating;
-            $place->latitude = $apiResult->coordinates->latitude;
-            $place->longitude = $apiResult->coordinates->longitude;
+            $place->yelp_id = $apiResult->id ?? '';
+            $place->image_url = $apiResult->image_url ?? '';
+            $place->address = $apiResult->location->address1 ?? '';
+            $place->average_rating = $apiResult->rating ?? -1;
+            $place->latitude = $apiResult->coordinates->latitude ?? -1;
+            $place->longitude = $apiResult->coordinates->longitude ?? -1;
             $place->provider = "yelp";
             $place->qt_reviews = 0;
             $place->save();
