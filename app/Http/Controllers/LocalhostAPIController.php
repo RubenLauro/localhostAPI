@@ -285,6 +285,7 @@ class LocalhostAPIController extends Controller
 
         if (count($result) >= 1)
             return $result;
+
         /**
          * Yelp
          *
@@ -366,14 +367,16 @@ class LocalhostAPIController extends Controller
             $place = $this->createOrUpdatePlace($yelpResult,
                 $yelpResult->coordinates->latitude,
                 $yelpResult->coordinates->longitude, "yelp");
-            if ($place != null)
+            if ($place != null && $place->average_rating >= $ranking)
                 $places = $places->push($place);
         }
         //There are some places
         // gotten from other APIS
         // dd($places);
-        return $places;
+        return response()->json($places->sortByDesc("average_rating"));
     }
+
+
 
     /**
      * Create or update reviews from place
