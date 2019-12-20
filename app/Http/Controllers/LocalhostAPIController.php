@@ -275,16 +275,16 @@ class LocalhostAPIController extends Controller
         $places = new Collection();
 
         //go to db first
-        $tmpResult = Place::where('average_rating', '<=', $ranking)->orderBy('average_rating', 'DESC')->get();
+        $tmpResult = Place::where('average_rating', '>=', $ranking)->orderBy('average_rating', 'DESC')->get();
         $result = [];
         foreach ($tmpResult as $r) {
-            if (!($r->getRadius($curLat, $curLong) <= $radius)) {
+            if ($r->getRadius($curLat, $curLong) <= $radius) {
                 array_push($result, $r);
             }
         }
+
         if (count($result) >= 1)
             return $result;
-
         /**
          * Yelp
          *
@@ -302,8 +302,8 @@ class LocalhostAPIController extends Controller
          *      location: Array({address1/2/3, city, zip-code,country,display_address})
          * })
          */
+        //todo o yelp nao filtra os locais por rating
         $yelpResults = json_decode(YelpAPIController::searchByRanking($curLat, $curLong, $radius, $ranking));
-
         /**
          * Zomato
          *
