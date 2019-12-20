@@ -279,7 +279,7 @@ class LocalhostAPIController extends Controller
         $result = [];
         foreach ($tmpResult as $r) {
             if (!($r->getRadius($curLat, $curLong) <= $radius)) {
-                array_push($result);
+                array_push($result, $r);
             }
         }
         if (count($result) >= 1)
