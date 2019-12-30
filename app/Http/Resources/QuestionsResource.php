@@ -18,7 +18,8 @@ class QuestionsResource extends Resource
             'id' => $this->id,
             'place_name' => $this->place->name,
             'place_image_url' => $this->place->image_url,
-            'place_city' => $this->place->city
+            'place_city' => $this->place->city,
+            'isMine' => $this->isMine
         ];
     }
 }

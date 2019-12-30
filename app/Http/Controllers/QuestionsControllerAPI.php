@@ -6,7 +6,10 @@ use App\Http\Resources\QuestionsResource;
 use App\Place;
 use App\Question;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+
+use Kreait\Firebase;
 
 class QuestionsControllerAPI extends Controller
 {
@@ -24,7 +27,18 @@ class QuestionsControllerAPI extends Controller
         return response()->json(['msg' => 'Could\'nt store question'], 500);
     }
 
-    public function getMyQuestions(){
-        return response()->json(QuestionsResource::collection(Auth::user()->questions));
+    public function getQuestions(){
+        $questions = Auth::user()->questions;
+        foreach ($questions as $question) {
+            $question->isMine = 1;
+        }
+
+        foreach (Question::where('user_id', '!=', Auth::id())->get() as $question) {
+            if ($question->place->city == Auth::user()->local){
+                $question->isMine = 0;
+                $questions->push($question);
+            }
+        }
+        return response()->json(QuestionsResource::collection($questions));
     }
 }
