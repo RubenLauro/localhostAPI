@@ -34,4 +34,9 @@ class User extends Authenticatable
     {
         return $this->belongsToMany('App\Place', 'favorites', 'user_id', 'place_id');
     }
+
+    public function questions()
+    {
+        return $this->hasMany('App\Question');
+    }
 }

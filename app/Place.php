@@ -43,6 +43,11 @@ class Place extends Model
         return $this->hasMany('App\Review','place_id','id');
     }
 
+    public function questions()
+    {
+        return $this->hasMany('App\Question');
+    }
+
     public function users()
     {
         return $this->belongsToMany('App\User', 'favorites', 'place_id', 'user_id');
