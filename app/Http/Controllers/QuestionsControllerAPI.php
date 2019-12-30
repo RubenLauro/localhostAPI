@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\QuestionsResource;
 use App\Place;
 use App\Question;
 use Illuminate\Http\Request;
@@ -21,5 +22,9 @@ class QuestionsControllerAPI extends Controller
         }
 
         return response()->json(['msg' => 'Could\'nt store question'], 500);
+    }
+
+    public function getMyQuestions(){
+        return response()->json(QuestionsResource::collection(Auth::user()->questions));
     }
 }
