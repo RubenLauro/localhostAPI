@@ -34,7 +34,7 @@ class QuestionsControllerAPI extends Controller
         }
 
         foreach (Question::where('user_id', '!=', Auth::id())->get() as $question) {
-            if ($question->place->city == Auth::user()->local){
+            if (mb_strtolower($question->place->city) == mb_strtolower(Auth::user()->local)){
                 $question->isMine = 0;
                 $questions->push($question);
             }
