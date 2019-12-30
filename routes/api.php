@@ -42,5 +42,5 @@ Route::get('search','LocalhostAPIController@searchByRadius');
 Route::get('searchByName','LocalhostAPIController@searchByName');
 Route::get('searchByRanking','LocalhostAPIController@searchByRanking');
 Route::get('searchByCity','LocalhostAPIController@searchByCity');
-Route::get('getReviews/{place_id}','LocalhostAPIController@getReviews');
+Route::get('reviews/{place_id}','LocalhostAPIController@getReviews');
 
