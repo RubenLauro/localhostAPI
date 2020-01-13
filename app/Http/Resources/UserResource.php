@@ -21,7 +21,8 @@ class UserResource extends Resource
             'email' => $this->email,
             'local' => $this->local,
             'avatar'=> $this->avatar,
-            'token' => $this->token
+            'token' => $this->token,
+            'messaging_token' => $this->messaging_token
         ];
     }
 }
