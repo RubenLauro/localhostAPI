@@ -27,6 +27,7 @@ class UserControllerAPI extends Controller
         $user->email = $request->email;
         $user->password = Hash::make($request->password);
         $user->local = $request->local;
+        $user->messaging_token = $request->messaging_token;
         $user->avatar = ""; //todo change
 
         if ($user->save()){
