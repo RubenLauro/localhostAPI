@@ -32,6 +32,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('favorite/{place}', 'PlaceController@storeFavorite');
     Route::delete('favorite/{place}', 'PlaceController@deleteFavorite');
 
+    Route::get('places/{place}/question', 'PlaceController@hasQuestion');
+
     Route::get('questions', 'QuestionsControllerAPI@getQuestions');
     Route::delete('questions/{question}', 'QuestionsControllerAPI@delete');
     Route::post('question/{place}', 'QuestionsControllerAPI@store');

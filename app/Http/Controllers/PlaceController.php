@@ -24,6 +24,16 @@ class PlaceController extends Controller
         return response()->json(["message" => "Favorite removed successfully!"], 200);
     }
 
+    public function hasQuestion(Place $place){
+        foreach (Auth::user()->questions as $question) {
+            if ($place->id == $question->place->id){
+                return response()->json(true, 200);
+            }
+        }
+
+        return response()->json(false, 404);
+    }
+
 
     /**
      * Display a listing of the resource.
