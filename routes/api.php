@@ -33,6 +33,7 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('favorite/{place}', 'PlaceController@deleteFavorite');
 
     Route::get('questions', 'QuestionsControllerAPI@getQuestions');
+    Route::delete('questions/{question}', 'QuestionsControllerAPI@delete');
     Route::post('question/{place}', 'QuestionsControllerAPI@store');
 });
 

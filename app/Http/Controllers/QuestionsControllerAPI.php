@@ -29,6 +29,16 @@ class QuestionsControllerAPI extends Controller
         return response()->json(['msg' => 'Could\'nt store question'], 500);
     }
 
+    public function delete(Question $question){
+        try {
+            if ($question->delete()) {
+                return response()->json("Question deleted", 200);
+            }
+        } catch (\Exception $e) {
+            return response()->json("Couldn't delete question", 500);
+        }
+    }
+
     public function getQuestions()
     {
 /*
