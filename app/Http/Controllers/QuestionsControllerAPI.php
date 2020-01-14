@@ -23,7 +23,7 @@ class QuestionsControllerAPI extends Controller
         $question->question = $request->question;
 
         if ($question->save()) {
-            return response()->json($question->id, 200);
+            return response()->json(new QuestionsResource($question), 200);
         }
 
         return response()->json(['msg' => 'Could\'nt store question'], 500);

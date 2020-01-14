@@ -19,7 +19,7 @@ class QuestionsResource extends Resource
             'place_name' => $this->place->name,
             'place_image_url' => $this->place->image_url,
             'place_city' => $this->place->city,
-            'isMine' => $this->isMine
+            'isMine' => $this->isMine == null ? -1 : $this->isMine
         ];
     }
 }
