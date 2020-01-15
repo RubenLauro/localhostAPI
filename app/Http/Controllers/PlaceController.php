@@ -31,7 +31,7 @@ class PlaceController extends Controller
             }
         }
 
-        return response()->json(false, 404);
+        return response()->json(false, 200);
     }
 
 
