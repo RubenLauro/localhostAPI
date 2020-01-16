@@ -158,6 +158,52 @@ class LocalhostAPIController extends Controller
         return $places;
     }
 
+    public function searchByCityRakingRadius(Request $request){
+        $radius = $request->input('radius');
+        $curLat = $request->input('latitude');
+        $curLong = $request->input('longitude');
+        $city = $request->input('city');
+        $ranking = $request->input('ranking');
+
+         $cityAux = '';
+        if ($city == "lisboa"){ //todo TÁ MAL
+            $cityAux = "lisbon";
+        }
+
+        $places = new Collection();
+        $tmpResult = Place::where('city', 'LIKE', '%' . $cityAux . '%')
+            ->where('average_rating', '>=', $ranking)
+            ->orderBy('average_rating', 'DESC')
+            ->get();
+
+        $result = [];
+        foreach ($tmpResult as $r) {
+            if ($r->getRadius($curLat, $curLong) <= $radius) {
+                array_push($result, $r);
+            }
+        }
+        if (count($result) >= 1)
+            return response()->json($result);
+
+
+        $yelpResults = json_decode(YelpAPIController::searchByCityNameRating($curLat, $curLong, $radius, $city));
+        //$zomatoResults = ZomatoAPIController::searchByName($name);
+        //$foursquareResults = FourSquareAPIController::searchByName($name);
+
+        //Go through YELP results first
+        foreach ($yelpResults->businesses as $yelpResult) {
+            $place = $this->createOrUpdatePlace($yelpResult,
+                $yelpResult->coordinates->latitude,
+                $yelpResult->coordinates->longitude, "yelp");
+            if ($place != null && $place->average_rating >= $ranking)
+                $places = $places->push($place);
+        }
+        //There are some places
+        // gotten from other APIS
+        // dd($places);
+        return response()->json($places->sortByDesc("average_rating"));
+    }
+
     /**
      * Search by city
      *
@@ -376,8 +422,6 @@ class LocalhostAPIController extends Controller
         // dd($places);
         return response()->json($places->sortByDesc("average_rating"));
     }
-
-
 
     /**
      * Create or update reviews from place

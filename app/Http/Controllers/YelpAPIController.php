@@ -66,6 +66,16 @@ class YelpAPIController extends Controller
         return $result->getBody();
     }
 
+    public static function searchByCityNameRating($curLat, $curLon, $radius, $city)
+    {
+        $apikey = env("YELP_API_KEY");
+        $client = new Client();
+        $result = $client->get('https://api.yelp.com/v3/businesses/search?sort_by=distance&radius=' . $radius . '&latitude=' . $curLat . '&longitude=' . $curLon . '&location=' .$city, [
+            'headers' => ['Authorization' => 'Bearer ' . $apikey]
+        ]);
+        return $result->getBody();
+    }
+
     /**
      * Test api
      */
