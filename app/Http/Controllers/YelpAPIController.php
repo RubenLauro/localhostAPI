@@ -14,8 +14,6 @@ class YelpAPIController extends Controller
 
     private $apikey;
     private $apiid;
-
-
     /**
      * Gets reviews from id of business
      *
@@ -106,6 +104,15 @@ class YelpAPIController extends Controller
         $apikey = env("YELP_API_KEY");
         $client = new Client();
         $result = $client->get('https://api.yelp.com/v3/businesses/search?location=' . $query, [
+            'headers' => ['Authorization' => 'Bearer ' . $apikey]
+        ]);
+        return $result->getBody();
+    }
+
+    public static function searchByLocation($distrito){
+        $apikey = env("YELP_API_KEY");
+        $client = new Client();
+        $result = $client->get('https://api.yelp.com/v3/businesses/search?sort_by=distance&location=' . $distrito, [
             'headers' => ['Authorization' => 'Bearer ' . $apikey]
         ]);
         return $result->getBody();

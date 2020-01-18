@@ -17,7 +17,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'first_name', 'last_name', 'email', 'password',
+        'first_name', 'last_name', 'email', 'password', 'local', 'avatar', 'messaging_token'
     ];
 
     /**
@@ -38,5 +38,10 @@ class User extends Authenticatable
     public function questions()
     {
         return $this->hasMany('App\Question');
+    }
+
+    public function linkedSocialAccounts()
+    {
+        return $this->hasMany('App\LinkedSocialAccount');
     }
 }

@@ -18,6 +18,339 @@ use Illuminate\Support\Facades\Log;
 
 class LocalhostAPIController extends Controller
 {
+    /**
+     * Runs daily
+     */
+    public static function fetchPlaces()
+    {
+        $concelhos = [
+            'Alcácer do Sal',
+            'Castelo Branco',
+            'Idanha-a-Nova',
+            'Évora',
+            'Mértola',
+            'Montemor-o-Novo',
+            'Bragança',
+            'Beja',
+            'Coruche',
+            'Serpa',
+            'Santiago do Cacém',
+            'Moura',
+            'Ponte de Sor',
+            'Sabugal',
+            'Grândola',
+            'Montalegre',
+            'Almodôvar',
+            'Loulé',
+            'Mogadouro',
+            'Chamusca',
+            'Abrantes',
+            'Guarda',
+            'Fundão',
+            'Macedo de Cavaleiros',
+            'Vinhais',
+            'Arraiolos',
+            'Silves',
+            'Ourique',
+            'Mirandela',
+            'Ferreira do Alentejo',
+            'Elvas',
+            'Pombal',
+            'Tavira',
+            'Avis',
+            'Portel',
+            'Chaves',
+            'Nisa',
+            'Alcoutim',
+            'Castro Verde',
+            'Leiria',
+            'Penamacor',
+            'Santarém',
+            'Covilhã',
+            'Valpaços',
+            'Alandroal',
+            'Torre de Moncorvo',
+            'Benavente',
+            'Almeida',
+            'Estremoz',
+            'Figueira de Castelo Rodrigo',
+            'Viseu',
+            'Miranda do Douro',
+            'Pinhel',
+            'Vimioso',
+            'Oleiros',
+            'Reguengos de Monsaraz',
+            'Palmela',
+            'Aljustrel',
+            'Arcos de Valdevez',
+            'Portalegre',
+            'Sertã',
+            'Mora',
+            'Vila Pouca de Aguiar',
+            'Seia',
+            'Monforte',
+            'Ourém',
+            'Alcobaça',
+            'Torres Vedras',
+            'Mação',
+            'Vila Nova de Foz Côa',
+            'Crato',
+            'Pampilhosa da Serra',
+            'Monchique',
+            'Proença-a-Nova',
+            'Viana do Alentejo',
+            'Cantanhede',
+            'Castro Daire',
+            'Figueira da Foz',
+            'Barcelos',
+            'Vila Real',
+            'Tondela',
+            'Redondo',
+            'Alter do Chão',
+            'Trancoso',
+            'Tomar',
+            'São Pedro do Sul',
+            'Montijo',
+            'Águeda',
+            'Arganil',
+            'Vila Velha de Ródão',
+            'Arouca',
+            'Aljezur',
+            'Boticas',
+            'Alfândega da Fé',
+            'Ponte de Lima',
+            'Coimbra',
+            'Sintra',
+            'Viana do Castelo',
+            'Vila Franca de Xira',
+            'Vidigueira',
+            'Arronches',
+            'Alenquer',
+            'Amarante',
+            'Castro Marim',
+            'Gouveia',
+            'Alijó',
+            'Gavião',
+            'Mafra',
+            'Mêda',
+            'Sousel',
+            'Carrazeda de Ansiães',
+            'Mourão',
+            'Terras de Bouro',
+            'Rio Maior',
+            'Torres Novas',
+            'São João da Pesqueira',
+            'Vila Flor',
+            'Soure',
+            'Castelo de Vide',
+            'Alvito',
+            'Azambuja',
+            'Góis',
+            'Porto de Mós',
+            'Caldas da Rainha',
+            'Mortágua',
+            'Fronteira',
+            'Celorico da Beira',
+            'Campo Maior',
+            'Freixo de Espada à Cinta',
+            'Salvaterra de Magos',
+            'Cabeceiras de Basto',
+            'Guimarães',
+            'Cinfães',
+            'Angra do Heroísmo',
+            'Melgaço',
+            'Oliveira do Hospital',
+            'Ponta Delgada',
+            'Montemor-o-Velho',
+            'Vila Verde',
+            'Sernancelhe',
+            'Vendas Novas',
+            'Almeirim',
+            'Moimenta da Beira',
+            'Mangualde',
+            'Fafe',
+            'Vieira do Minho',
+            'Ribeira de Pena',
+            'Penacova',
+            'Anadia',
+            'Santa Maria da Feira',
+            'Lagos',
+            'Penafiel',
+            'Monção',
+            'Aguiar da Beira',
+            'Sines',
+            'Sátão',
+            'Marco de Canaveses',
+            'Vila Nova de Famalicão',
+            'Faro',
+            'Aveiro',
+            'Tábua',
+            'Sesimbra',
+            'Vila Viçosa',
+            'Vouzela',
+            'Vila de Rei',
+            'Ferreira do Zêzere',
+            'Murça',
+            'Marinha Grande',
+            'Braga',
+            'Ponte da Barca',
+            'Portimão',
+            'Celorico de Basto',
+            'Ribeira Grande',
+            'Vila do Bispo',
+            'Ansião',
+            'Vila Nova de Paiva',
+            'Cadaval',
+            'Baião',
+            'Figueiró dos Vinhos',
+            'Horta',
+            'Mondim de Basto',
+            'Cuba',
+            'Setúbal',
+            'Vagos',
+            'Loures',
+            'Vila Nova de Gaia',
+            'Barrancos',
+            'Lamego',
+            'Oliveira de Azeméis',
+            'Praia da Vitória',
+            'Alvaiázere',
+            'Cartaxo',
+            'Sabrosa',
+            'Paredes',
+            'Albergaria-a-Velha',
+            'Lajes do Pico',
+            'Marvão',
+            'São Brás de Alportel',
+            'Vila do Conde',
+            'Ovar',
+            'Lourinhã',
+            'Madalena',
+            'Vale de Cambra',
+            'Oliveira de Frades',
+            'Borba',
+            'São Roque do Pico',
+            'Óbidos',
+            'Albufeira',
+            'Condeixa-a-Nova',
+            'Lousã',
+            'Paredes de Coura',
+            'Caminha',
+            'Santo Tirso',
+            'Santana',
+            'Penela',
+            'Penalva do Castelo',
+            'Tabuaço',
+            'Penedono',
+            'Póvoa de Lanhoso',
+            'Gondomar',
+            'Fornos de Algodres',
+            'Olhão',
+            'Sever do Vouga',
+            'Pedrógão Grande',
+            'Alcochete',
+            'Alcanena',
+            'Miranda do Corvo',
+            'Calheta',
+            'Nelas',
+            'Mira',
+            'Resende',
+            'Manteigas',
+            'Belmonte',
+            'Velas',
+            'Armamar',
+            'Valença',
+            'Carregal do Sal',
+            'Felgueiras',
+            'Castelo de Paiva',
+            'Santa Comba Dão',
+            'Mealhada',
+            'Calheta',
+            'Vila Nova de Cerveira',
+            'Estarreja',
+            'Povoação',
+            'Batalha',
+            'Tarouca',
+            'Nordeste',
+            'Cascais',
+            'Vila do Porto',
+            'Lousada',
+            'Seixal',
+            'Alpiarça',
+            'Esposende',
+            'Peso da Régua',
+            'Sardoal',
+            'Bombarral',
+            'Lagoa',
+            'Oliveira do Bairro',
+            'Lisbon',
+            'Vila Nova de Poiares',
+            'Maia',
+            'Porto Moniz',
+            'Nazaré',
+            'Póvoa de Varzim',
+            'Amares',
+            'São Vicente',
+            'Constância',
+            'Vila Franca do Campo',
+            'Arruda dos Vinhos',
+            'Peniche',
+            'Golegã',
+            'Funchal',
+            'Valongo',
+            'Ílhavo',
+            'Murtosa',
+            'Trofa',
+            'Paços de Ferreira',
+            'Santa Cruz das Flores',
+            'Almada',
+            'Lajes das Flores',
+            'Santa Marta de Penaguião',
+            'Santa Cruz',
+            'Machico',
+            'Castanheira de Pera',
+            'Ribeira Brava',
+            'Matosinhos',
+            'Vila Real de Santo António',
+            'Santa Cruz da Graciosa',
+            'Moita',
+            'Câmara de Lobos',
+            'Sobral de Monte Agraço',
+            'Vila Nova da Barquinha',
+            'Ponta do Sol',
+            'Oeiras',
+            'Lagoa',
+            'Porto Santo',
+            'Porto',
+            'Barreiro',
+            'Mesão Frio',
+            'Odivelas',
+            'Vizela',
+            'Amadora',
+            'Espinho',
+            'Corvo',
+            'Entroncamento',
+            'São João da Madeira'
+        ];
+        foreach ($concelhos as $concelho) {
+            $results = LocalhostAPIController::fetchByName($concelho);
+        }
+    }
+
+    static function fetchByName($concelho)
+    {
+        $yelpResults = json_decode(YelpAPIController::searchByLocation($concelho));
+        $controller = new LocalhostAPIController();
+        foreach ($yelpResults->businesses as $yelpResult) {
+            $place = $controller->createOrUpdatePlace($yelpResult,
+                $yelpResult->coordinates->latitude,
+                $yelpResult->coordinates->longitude, "yelp");
+        }
+    }
+
+//CROOOOOOOOOON CROOOOOOOOOONCROOOOOOOOOON CROOOOOOOOOONCROOOOOOOOOON CROOOOOOOOOONCROOOOOOOOOONCROOOOOOOOOONCROOOOOOOOOON
+//CROOOOOOOOOON CROOOOOOOOOONCROOOOOOOOOON CROOOOOOOOOONCROOOOOOOOOON CROOOOOOOOOONCROOOOOOOOOONCROOOOOOOOOONCROOOOOOOOOON
+//CROOOOOOOOOON CROOOOOOOOOONCROOOOOOOOOON CROOOOOOOOOONCROOOOOOOOOON CROOOOOOOOOONCROOOOOOOOOONCROOOOOOOOOONCROOOOOOOOOON
 
     /**
      * Search by name
@@ -136,19 +469,29 @@ class LocalhostAPIController extends Controller
                 array_push($result, $r);
             }
         }
+/*
         if (count($result) >= 1)
-            return response()->json($result);
+            return response()->json($result);*/
 
 
-        $yelpResults = json_decode(YelpAPIController::searchByRadius($curLat, $curLong, $radius));
-        //$zomatoResults = ZomatoAPIController::searchByName($name);
-        //$foursquareResults = FourSquareAPIController::searchByName($name);
-
+        //$yelpResults = json_decode(YelpAPIController::searchByRadius($curLat, $curLong, $radius));
+        //$zomatoResults = json_decode(ZomatoAPIController::searchByName($name);
+        $foursquareResults = json_decode(FourSquareAPIController::searchByRadius($curLat, $curLong, $radius));
+        //dd($foursquareResults->response->venues);
         //Go through YELP results first
+/*
         foreach ($yelpResults->businesses as $yelpResult) {
             $place = $this->createOrUpdatePlace($yelpResult,
                 $yelpResult->coordinates->latitude,
                 $yelpResult->coordinates->longitude, "yelp");
+            if ($place != null)
+                $places = $places->push($place);
+        }*/
+
+        foreach ($foursquareResults->response->venues as $fsResult) {
+            $place = $this->createOrUpdatePlace($fsResult,
+                $fsResult->location->lat,
+                $fsResult->location->lng, "fsquare");
             if ($place != null)
                 $places = $places->push($place);
         }
@@ -165,7 +508,7 @@ class LocalhostAPIController extends Controller
         $city = $request->input('city');
         $ranking = $request->input('ranking');
 
-         $cityAux = '';
+        $cityAux = '';
         if ($city == "lisboa"){ //todo TÁ MAL
             $cityAux = "lisbon";
         }
@@ -434,6 +777,8 @@ class LocalhostAPIController extends Controller
     {
         if ($provider == "yelp") {
             YelpAPIController::get_reviews($id, $place_id);
+        } elseif ($provider == "fsquare"){
+            FourSquareAPIController::get_reviews($id, $place_id);
         }
     }
 
@@ -450,7 +795,6 @@ class LocalhostAPIController extends Controller
      */
     private function createOrUpdatePlace($apiResult, $apiLat, $apiLong, $provider)
     {
-
         $place = Place::whereBetween('latitude', [$apiLat - 0.0002, $apiLat + 0.0002])
             ->whereBetween('longitude', [$apiLong - 0.0002, $apiLong + 0.0002])->first();
         if ($place) {
@@ -479,12 +823,35 @@ class LocalhostAPIController extends Controller
 //                        $place->place_types()->save($type);
 //                    }
 //                    $place->reviews = $this->get_reviews($apiResult->id, "yelp");
-            }
-//                else if ($provider == "fsquare") {
-//                    $place->address = $place->address ?? $apiResult->location->formattedAddress;
-//                    $place->latitude = $place->latitude ?? $apiResult->location->lat;
-//                    $place->longitude = $place->longitude ?? $apiResult->location->lng;
-//                    $place->types = $this->parse_categories_array($apiResult->cuisines, "fsquare");
+            } else if ($provider == "fsquare") {
+                $details = json_decode(FourSquareAPIController::getDetails($apiResult->id));
+                $place->fsquare_id = $apiResult->id;
+                if (isset($details->response->venue->bestPhoto)){
+                    $place->image_url = $details->response->venue->bestPhoto->prefix.'400x225'.$details->response->venue->bestPhoto->suffix;
+                } else{
+                    $place->image_url = '';
+                }
+                if (isset($details->response->venue->rating)){
+                    $place->average_rating = $details->response->venue->rating/2;
+                }else{
+                    $place->average_rating = 3;
+                }
+                $place->address = $place->address ?? $apiResult->location->address;
+                $place->latitude = $place->latitude ?? $apiResult->location->lat;
+                $place->longitude = $place->longitude ?? $apiResult->location->lng;
+                $place->qt_reviews = 0;
+                //dd($place);
+                $types = $this->parse_categories_array($apiResult->categories, "fsquare");
+                foreach ($types as $type) {
+                    $place_type = PlaceType::where('type_id', $type)->where('place_id', $place->id)->first();
+                    if (!$place_type) {
+                        $place_type = new PlaceType(array('type_id' => $type, 'place_id' => $place->id));
+                    }
+                    $place_type->save();
+                }
+                $this->createOrUpdateReviews($place->fsquare_id, $place->id, "fsquare");
+                $place->qt_reviews = $place->reviews()->get()->count();
+                //var_dump($place);
 //                } else if ($provider == "zomato") {
 //                    $place->image_url = $place->image_url ?? $apiResult->featured_image;
 //                    $place->address = $place->address ?? $apiResult->location->address;
@@ -494,36 +861,74 @@ class LocalhostAPIController extends Controller
 //                    $place->types = $this->parse_categories_array($apiResult->cuisines, "zomato");
 //                    $place->reviews = $this->get_reviews($apiResult->id, "yelp");
 //                }
-            $place->update();
-            return $place;
-        }
-        $place = new Place();
-        //not same place
-        $place->name = $apiResult->name ?? 'Sem nome';
-        $place->city = mb_strtolower($apiResult->location->city) ?? '';
-        if ($provider == "yelp") {
-            $place->yelp_id = $apiResult->id ?? '';
-            $place->image_url = $apiResult->image_url ?? '';
-            $place->address = $apiResult->location->address1 ?? '';
-            $place->average_rating = $apiResult->rating ?? -1;
-            $place->latitude = $apiResult->coordinates->latitude ?? -1;
-            $place->longitude = $apiResult->coordinates->longitude ?? -1;
-            $place->provider = "yelp";
-            $place->qt_reviews = 0;
-            $place->save();
-            $types = $this->parse_categories_array($apiResult->categories, "yelp");
-            foreach ($types as $type) {
-                $place_type = PlaceType::where('type_id', $type)->where('place_id', $place->id)->first();
-                if (!$place_type) {
-                    $place_type = new PlaceType(array('type_id' => $type, 'place_id' => $place->id));
-                }
-                $place_type->save();
+                $place->update();
+                return $place;
             }
-            $this->createOrUpdateReviews($place->yelp_id, $place->id, "yelp");
-            $place->qt_reviews = $place->reviews()->get()->count();
-            $place->update();
-//            $reviews = $this->get_reviews($apiResult->id, "yelp");
         }
+        //var_dump($apiResult->location);
+        if (isset($apiResult->location->city)){
+            $place = new Place();
+            //not same place
+            $place->name = $apiResult->name ?? 'Sem nome';
+            //var_dump("sim");
+            $place->city = mb_strtolower($apiResult->location->city) ?? '';
+
+            if ($provider == "yelp") {
+                $place->yelp_id = $apiResult->id ?? '';
+                $place->image_url = $apiResult->image_url ?? '';
+                $place->address = $apiResult->location->address1 ?? '';
+                $place->average_rating = $apiResult->rating ?? -1;
+                $place->latitude = $apiResult->coordinates->latitude ?? -1;
+                $place->longitude = $apiResult->coordinates->longitude ?? -1;
+                $place->provider = "yelp";
+                $place->qt_reviews = 0;
+                $place->save();
+                $types = $this->parse_categories_array($apiResult->categories, "yelp");
+                foreach ($types as $type) {
+                    $place_type = PlaceType::where('type_id', $type)->where('place_id', $place->id)->first();
+                    if (!$place_type) {
+                        $place_type = new PlaceType(array('type_id' => $type, 'place_id' => $place->id));
+                    }
+                    $place_type->save();
+                }
+                $this->createOrUpdateReviews($place->yelp_id, $place->id, "yelp");
+                $place->qt_reviews = $place->reviews()->get()->count();
+                $place->update();
+//            $reviews = $this->get_reviews($apiResult->id, "yelp");
+            } else if ($provider == "fsquare") {
+                $details = json_decode(FourSquareAPIController::getDetails($apiResult->id));
+                $place->fsquare_id = $apiResult->id ?? '';
+                $place->address =  $apiResult->location->address ?? '';
+                if (isset($details->response->venue->bestPhoto)){
+                    $place->image_url = $details->response->venue->bestPhoto->prefix.'400x225'.$details->response->venue->bestPhoto->suffix;
+                } else{
+                    $place->image_url = '';
+                }
+                $place->latitude =  $apiResult->location->lat ?? -1;
+                $place->longitude =  $apiResult->location->lng ?? -1;
+                //dd($details->response->venue);
+                if (isset($details->response->venue->rating)){
+                    $place->average_rating = $details->response->venue->rating/2;
+                }else{
+                    $place->average_rating = 3;
+                }
+                $place->provider = "fsquare";
+                $place->qt_reviews = 0;
+                $place->save();
+                $types = $this->parse_categories_array($apiResult->categories, "fsquare");
+                foreach ($types as $type) {
+                    $place_type = PlaceType::where('type_id', $type)->where('place_id', $place->id)->first();
+                    if (!$place_type) {
+                        $place_type = new PlaceType(array('type_id' => $type, 'place_id' => $place->id));
+                    }
+                    $place_type->save();
+                }
+                $this->createOrUpdateReviews($place->fsquare_id, $place->id, "fsquare");
+                $place->qt_reviews = $place->reviews()->get()->count();
+                $place->update();
+            }
+        }
+
 //        else if ($provider == "fsquare") {
 //            $place->address =  $apiResult->location->formattedAddress;
 //            $place->latitude =  $apiResult->location->lat;
@@ -678,11 +1083,11 @@ class LocalhostAPIController extends Controller
         $temp = array();
         if ($provider == "yelp") {
             foreach ($categories as $category) {
-                array_push($temp, strtolower($category->alias));
+                array_push($temp, mb_strtolower($category->alias));
             }
         } else if ($provider == "fsquare") {
             foreach ($categories as $category) {
-                array_push($temp, strtolower($category->shortName));
+                array_push($temp, mb_strtolower($category->shortName));
             }
         } else if ($provider == "zomato") {
             $temp = explode(',', $categories);

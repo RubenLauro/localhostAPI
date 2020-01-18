@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 */
 
 Route::post('login', 'LoginControllerAPI@login');
+Route::post('fblogin', 'LoginControllerAPI@fblogin');
 
 Route::post('register', 'UserControllerAPI@store');
 
