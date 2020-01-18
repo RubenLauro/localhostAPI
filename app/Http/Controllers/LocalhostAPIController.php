@@ -469,12 +469,11 @@ class LocalhostAPIController extends Controller
                 array_push($result, $r);
             }
         }
-/*
         if (count($result) >= 1)
-            return response()->json($result);*/
+            return response()->json($result);
 
 
-        //$yelpResults = json_decode(YelpAPIController::searchByRadius($curLat, $curLong, $radius));
+        $yelpResults = json_decode(YelpAPIController::searchByRadius($curLat, $curLong, $radius));
         //$zomatoResults = json_decode(ZomatoAPIController::searchByName($name);
         $foursquareResults = json_decode(FourSquareAPIController::searchByRadius($curLat, $curLong, $radius));
         //dd($foursquareResults->response->venues);

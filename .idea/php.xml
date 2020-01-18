@@ -118,12 +118,6 @@
       <path value="$PROJECT_DIR$/vendor/google/crc32" />
       <path value="$PROJECT_DIR$/vendor/rize/uri-template" />
       <path value="$PROJECT_DIR$/vendor/psr/http-factory" />
-      <path value="$PROJECT_DIR$/vendor/grpc/grpc" />
-      <path value="$PROJECT_DIR$/vendor/google/cloud-firestore" />
-      <path value="$PROJECT_DIR$/vendor/google/common-protos" />
-      <path value="$PROJECT_DIR$/vendor/google/grpc-gcp" />
-      <path value="$PROJECT_DIR$/vendor/google/protobuf" />
-      <path value="$PROJECT_DIR$/vendor/google/gax" />
       <path value="$PROJECT_DIR$/vendor/grpc-1.26.0/grpc-1.26.0" />
       <path value="$PROJECT_DIR$/vendor/ahsankhatri/firestore-php" />
       <path value="$PROJECT_DIR$/vendor/league/oauth1-client" />
