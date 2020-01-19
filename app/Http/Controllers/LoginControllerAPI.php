@@ -27,6 +27,8 @@ class LoginControllerAPI extends Controller
         if ($errorCode=='200') {
             $token = json_decode((string) $response->getBody(), true)['access_token'];
             $user = User::where('email', '=', $request->email)->firstOrFail();
+            $user->messaging_token = $request->messaging_token;
+            $user->save();
             $user->token = $token;
             return new UserResource($user);
         } else {
@@ -63,6 +65,8 @@ class LoginControllerAPI extends Controller
 
     public function logout()
     {
+        Auth::user()->messaging_token = "";
+        Auth::user()->save();
         \Auth::guard('api')->user()->token()->revoke();
         \Auth::guard('api')->user()->token()->delete();
         return response()->json(['msg'=>'Logged out'], 200);
