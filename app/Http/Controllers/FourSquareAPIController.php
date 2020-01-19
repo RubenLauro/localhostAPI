@@ -31,6 +31,17 @@ class FourSquareAPIController extends Controller
 
         return $result->getBody();
     }
+
+    public static function searchByLocal($local)
+    {
+        $apicid = env('FOURSQUARE_API_CLIENT_ID');
+        $apicsecret = env('FOURSQUARE_API_CLIENT_SECRET');
+        $client = new Client();
+        $result = $client->get('https://api.foursquare.com/v2/venues/search?client_id=' .
+            $apicid . '&client_secret=' . $apicsecret . "&near={$local}&v=20191129&limit=20&categoryId=4d4b7105d754a06374d81259");
+
+        return $result->getBody();
+    }
     /**
      * Gets reviews from id of business
      *

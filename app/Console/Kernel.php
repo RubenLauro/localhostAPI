@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Http\Controllers\LocalhostAPIController;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -26,6 +27,10 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')
         //          ->hourly();
+        $filePath = "storage/logs/scheduled.log";
+        $schedule->call(function () {
+            LocalhostAPIController::fetchPlaces();
+        })->everyMinute()->runInBackground()->sendOutputTo($filePath);
     }
 
     /**

@@ -29,17 +29,19 @@ class YelpAPIController extends Controller
             'headers' => ['Authorization' => 'Bearer ' . $apikey]
         ]);
         $reviews = json_decode($result->getBody())->reviews;
-        foreach ($reviews as $review) {
-            $r = Review::where('user_name', $review->user->name)->where('text', $review->text)->where('provider', "yelp")->get();
-            if ($r->isEmpty()) {
-                $r = new Review();
-                $r->user_name = $review->user->name ?? '';
-                $r->user_image = $review->user->image_url ?? '';
-                $r->text = $review->text ?? '';
-                $r->provider = "yelp" ?? '';
-                $r->rating = $review->rating ?? '';
-                $r->place_id = $place_id ?? -1;
-                $r->save();
+        if (!empty($reviews)) {
+            foreach ($reviews as $review) {
+                $r = Review::where('user_name', $review->user->name)->where('text', $review->text)->where('provider', "yelp")->get();
+                if ($r->isEmpty()) {
+                    $r = new Review();
+                    $r->user_name = $review->user->name ?? '';
+                    $r->user_image = $review->user->image_url ?? '';
+                    $r->text = $review->text ?? '';
+                    $r->provider = "yelp" ?? '';
+                    $r->rating = $review->rating ?? '';
+                    $r->place_id = $place_id ?? -1;
+                    $r->save();
+                }
             }
         }
     }
