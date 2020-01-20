@@ -42,6 +42,7 @@ class CustomResetPasswordNotification extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
+                    ->from('team.localh@gmail.com', 'Localhost Team support')
                     ->subject('Reset Password')
                     ->line('You are receiving this email because we received a password reset request for your account.')
                     ->action('Reset Password', url('/reset/password/'.$this->token))
