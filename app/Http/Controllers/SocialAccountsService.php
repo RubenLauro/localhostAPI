@@ -36,7 +36,7 @@ class SocialAccountsService
             if (!$user) {
                 $fileContents = file_get_contents($providerUser->getAvatar());
                 $new_avatar_url = Str::random(16).'.jpg';
-                Storage::put("public/profiles/{$new_avatar_url}.jpg", $fileContents);
+                Storage::put("public/profiles/{$new_avatar_url}", $fileContents);
                 //dd($fileContents);
                 //dd($providerUser->getAvatar());
                 $names = explode(' ', $providerUser->getName());
