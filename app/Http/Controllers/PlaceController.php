@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\QuestionsResource;
+use App\Http\Resources\QuestionResourceWithNull;
 use App\Place;
 use App\Question;
 use Illuminate\Http\Request;
@@ -29,7 +29,7 @@ class PlaceController extends Controller
     public function hasQuestion(Place $place){
         foreach (Auth::user()->questions as $question) {
             if ($place->id == $question->place->id){
-                return response()->json(new QuestionsResource($question), 200);
+                return response()->json(new QuestionResourceWithNull($question), 200);
             }
         }
 
