@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\QuestionResourceWithNull;
 use App\Http\Resources\QuestionsResource;
 use App\Place;
 use App\Question;
@@ -50,7 +51,7 @@ class QuestionsControllerAPI extends Controller
                     'exceptions' => false,
                 ]);
             }
-            return response()->json(new QuestionsResource($question), 200);
+            return response()->json(new QuestionResourceWithNull($question), 200);
         }
 
         return response()->json(['msg' => 'Could\'nt store question'], 500);
