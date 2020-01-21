@@ -24,7 +24,7 @@ class QuestionsControllerAPI extends Controller
         $question->question = $request->question;
 
         if ($question->save()) {
-            foreach (User::where('id', '!=', Auth::id())->where('local', mb_strtolower($question->place->city))->limit(5)->get() as $user) {
+            foreach (User::where('id', '!=', Auth::id())->where('local', mb_strtolower($question->place->city))->get() as $user) {
                 $data = new \stdClass();
                 $data->to = $user->messaging_token;
                 $data->notification = new \stdClass();
