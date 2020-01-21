@@ -30,8 +30,8 @@ class QuestionsControllerAPI extends Controller
                 $data->notification = new \stdClass();
                 $data->notification->title = $question->place->name;
                 $data->notification->body = $question->user->first_name." ".$question->user->last_name." pediu uma recomendação";
-                $data->click_action = "local";
-                $data->mutable_content = true;
+                $data->notification->click_action = "local";
+                $data->notification->mutable_content = true;
                 $data->data = new \stdClass();
                 $data->data->chat_id = $question->id;
                 $data->data->place_name = $question->place->name;
@@ -40,7 +40,7 @@ class QuestionsControllerAPI extends Controller
                 $data->data->questao = $question->question;
                 //dd(json_encode($data));
                 $http = new \GuzzleHttp\Client;
-                $response = $http->post('https://fcm.googleapis.com/fcm/send', [
+                $response = $http->postAsync('https://fcm.googleapis.com/fcm/send', [
                         'headers' => [
                             'Content-Type' => 'application/json',
                             'Authorization' => 'key=AAAArqCMkAI:APA91bGLZ4ZgSGXBFP8cvdda3NjZQFbZImQW4lrwW9YpbkwTe99AhGJ8RO9Tw1GewjSXnJ9oYZRsKjosT7hnxle7fAO8YOzD-5HEWR9omc1zAV1NcNeOYiJl8w4lDfiM3tTTEvx5ZJ7F',
