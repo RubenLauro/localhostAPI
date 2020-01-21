@@ -24,7 +24,7 @@ class QuestionsControllerAPI extends Controller
         $question->question = $request->question;
 
         if ($question->save()) {
-            foreach (User::where('id', '!=', Auth::id())->where('local', mb_strtolower($question->place->city))->get() as $user) {
+            foreach (User::where('id', '!=', Auth::id())->where('local', mb_strtolower($question->place->city))->where('messaging_token', '!=', "")->get() as $user) {
                 $data = new \stdClass();
                 $data->to = $user->messaging_token;
                 $data->notification = new \stdClass();
@@ -40,7 +40,7 @@ class QuestionsControllerAPI extends Controller
                 $data->data->questao = $question->question;
                 //dd(json_encode($data));
                 $http = new \GuzzleHttp\Client;
-                $response = $http->postAsync('https://fcm.googleapis.com/fcm/send', [
+                $response = $http->post('https://fcm.googleapis.com/fcm/send', [
                         'headers' => [
                             'Content-Type' => 'application/json',
                             'Authorization' => 'key=AAAArqCMkAI:APA91bGLZ4ZgSGXBFP8cvdda3NjZQFbZImQW4lrwW9YpbkwTe99AhGJ8RO9Tw1GewjSXnJ9oYZRsKjosT7hnxle7fAO8YOzD-5HEWR9omc1zAV1NcNeOYiJl8w4lDfiM3tTTEvx5ZJ7F',
